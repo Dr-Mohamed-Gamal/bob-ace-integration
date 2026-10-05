@@ -49,9 +49,10 @@ ask. Do not guess.
   steps and reviewers read it.
 - **FW-12** An ACE project is done only when the ACE Toolkit shows no errors and no warnings for it.
   Run `python3 ../tools/toolkit_check.py <project folder>` from the workspace (it runs the Toolkit's
-  own validation, about a minute) and fix every problem it reports, then run it again. Each ACE
-  project has `.settings/org.eclipse.core.resources.prefs` with `eclipse.preferences.version=1` and
-  `encoding/<project>=UTF-8`.
+  own validation, about a minute) and fix every problem it reports, then run it again. The check
+  reports errors only; also avoid the Toolkit's warnings. Each ACE project has
+  `.settings/org.eclipse.core.resources.prefs` with exactly `eclipse.preferences.version=1` and
+  `encoding/<project>=UTF-8`, where `<project>` is literal text, not the project name.
 
 ## 2. Requirement conformance (REQ)
 
@@ -87,7 +88,9 @@ ask. Do not guess.
 - **ESQL-04** Give a variable its initial value on the `DECLARE` when the value is known.
 - **ESQL-05** Keywords in uppercase, one statement per line, each ending with a semicolon.
 - **ESQL-06** Reusable constants, functions and procedures are declared at broker-schema level,
-  not inside a module. Call them by fully-qualified name, or through a `PATH` statement placed in
+  not inside a module. A schema-level routine cannot use correlation names (`InputRoot`,
+  `OutputRoot`, `LocalEnvironment`, `OutputLocalEnvironment`, `Environment`): pass the trees as
+  `REFERENCE` parameters, or keep a routine that needs them inside the module. Call them by fully-qualified name, or through a `PATH` statement placed in
   the same file outside any `MODULE`. Never define a function or procedure inside `EVAL`.
 - **ESQL-07** Correlation names: in a Compute node read from `InputRoot` / `InputBody` and write
   to `OutputRoot`; in Database and Filter nodes use `Root` / `Body`. Only a Compute node creates

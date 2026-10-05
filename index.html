@@ -177,18 +177,19 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
     <tr><td>1–2 Plan and build</td><td class="ok">Pass, first time</td><td>Every requirement field mapped, all nine status codes in both API files, no invented values: 21 placeholders, all <code>TODO_…</code> or on the reserved <code>.invalid</code> domain</td></tr>
     <tr><td>3 Document</td><td>n/a</td><td>Every template section and field; the date from the prompt; the error behaviour it describes matches the code</td></tr>
     <tr><td>4 Review</td><td>n/a</td><td><strong>12 findings, 7 real</strong>, including an undeclared user-defined property and a validation error that still called the back end. 2 false alarms (no framework, a decision the reviewer could not see), which led to the decisions file</td></tr>
-    <tr><td>5 Fix</td><td class="ok">Pass</td><td>Both runtime bugs fixed; decisions recorded</td></tr>
+    <tr><td>5 Fix</td><td class="ok">Pass</td><td>Both runtime bugs fixed; decisions recorded. <span class="warn">The Toolkit's Problems view then showed 8 warnings the check does not report</span>: a procedure moved to schema level, as a rule said, could no longer use <code>OutputRoot</code>, and a settings file named the project where Eclipse wants the literal <code>&lt;project&gt;</code>. Both rules were corrected after the run</td></tr>
     <tr><td>6 Change</td><td class="ok">Pass</td><td>Programme-code condition, default 'N', guarded output field, dated change comments, both API files, document version raised</td></tr>
     <tr><td>7 Review the change</td><td>n/a</td><td><strong>4 findings, all real, no false alarms</strong>: document file name not renamed to the new version; API version not raised in either API file; a success example without the new field</td></tr>
   </tbody>
 </table></div>
 <p>Rehearsal cost: 23.8 Bobcoins for the seven prompts. Costs rise along the chat because each turn carries the whole conversation.</p>
 
-<h3>Three things the earlier runs taught</h3>
+<h3>What the runs taught</h3>
 <ul class="tight">
   <li><strong>Reviews in the same context approve their own work.</strong> Twice a same-context review reported zero findings on code with real defects. The same prompt with a subagent found eight real ones, including a typo in a JSON key that the audit had missed too.</li>
   <li><strong>A model guesses values it does not have.</strong> The first build put three invented hosts on the bank's real domain into the API and the ESQL, and copied the example requirement id from the rules into a change comment. Rule FW-11 (placeholders only) stopped it in every later run.</li>
-  <li><strong>The Toolkit is the judge, and Bob cannot see it.</strong> Bob's first ACE project compiled with <code>ibmint</code> but would not open in the Toolkit. Bob cannot read the Problems view; the headless Toolkit check gives him the same messages.</li>
+  <li><strong>The Toolkit is the judge, and Bob cannot see it.</strong> Bob's first ACE project compiled with <code>ibmint</code> but would not open in the Toolkit. Bob cannot read the Problems view; the headless Toolkit check gives him its errors. It does not report warnings, so a person still looks at the Problems view after each step.</li>
+  <li><strong>A rule can cause a defect.</strong> A rule told Bob to move reusable procedures to schema level without saying such a procedure cannot touch the message trees. Bob followed it and created seven Toolkit warnings. Rules need the same review as code.</li>
 </ul>
 
 <h2 id="rules">Rules that came out of the runs</h2>
@@ -214,7 +215,7 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
   <li>In the Toolkit: Settings &gt; Terminal &gt; Local Terminal &gt; Add an entry "IBM Bob Shell" that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a>, with the Eclipse workspace as the initial working directory.</li>
   <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the seven prompts in one chat.</li>
   <li>Approve read-only checks for the task when Bob asks; approve deletions once, after reading them.</li>
-  <li>After each step, refresh the project in the Toolkit and look at the Problems view.</li>
+  <li>After each step, refresh the project in the Toolkit and look at the Problems view; use Project &gt; Clean if a marker looks out of date.</li>
 </ol>
 <p>Each use case also has its own page in this repository: <a href="use-case-1-create-service/">use case 1</a>, <a href="use-case-3-interface-document/">use case 3</a>, <a href="use-case-6-review/">use case 6</a>, <a href="use-case-2-change/">use case 2</a>.</p>
 

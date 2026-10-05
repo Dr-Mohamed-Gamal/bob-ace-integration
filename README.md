@@ -46,7 +46,8 @@ Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [to
 - **Reviews in the same context approve their own work.** Twice a same-context review reported zero findings on code with real defects. With a subagent, the same prompt found eight, then twelve findings, most of them real, including two runtime bugs the Toolkit check passed.
 - **Without the decisions, a fresh reviewer reports them as defects.** The decisions file fixed that: the last review found four real gaps and no false alarms.
 - **A model guesses values it does not have.** The first build invented hosts on the client's real domain and copied an example requirement id from the rules. Placeholders only (rule FW-11) stopped it in every later run.
-- **The Toolkit is the judge, and Bob cannot see it.** The headless Toolkit check gives Bob the Toolkit's own messages.
+- **The Toolkit is the judge, and Bob cannot see it.** The headless Toolkit check gives Bob the Toolkit's errors; it does not report warnings, so a person still reads the Problems view after each step.
+- **A rule can cause a defect.** A rule to move procedures to schema level, without saying they then cannot touch the message trees, led Bob to create seven Toolkit warnings. Both affected rules were corrected after the rehearsal.
 - **Tell Bob the date**, or it copies the requirement's date into change comments and documents.
 
 ## Repository
