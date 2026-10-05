@@ -21,4 +21,4 @@ Prompts that review the service against the requirement and the team's standards
 | Fresh subagent, rehearsal | 12, 7 real | Two runtime bugs the Toolkit check had passed: a user-defined property used without being declared, and a validation error that still called the back end. Two false alarms: "no framework" was the lead's decision, which the reviewer could not see |
 | Fresh subagent on the change, rehearsal | 4, all real | The decisions file removed the false alarms. Found: document file name not renamed to the new version, API version not raised in either API definition, a success example without the new field |
 
-A review in the same context approves its own work. A fresh reviewer needs the decisions. Both lessons are now rules (section 6 and FW-13 in [RULES/integration-standards.md](../RULES/integration-standards.md)).
+A review in the same context approves its own work. A fresh reviewer needs the decisions. Both lessons are now rules (IBM-09, IBM-11 and IBM-12 in [RULES/ibm-working-method.md](../RULES/ibm-working-method.md)).

@@ -25,4 +25,4 @@ A requirement document (SRS) for two new APIs of an invented loyalty-points proj
 
 The Toolkit check passed the first time. Every field of the requirement was mapped and nothing else; all nine status codes were in both API definitions; there were 21 placeholders, all `TODO_…` or on the reserved `.invalid` domain, and no invented hostnames or ids. Cost: 6.3 Bobcoins for the two prompts.
 
-The earlier runs explain the rules that made this possible: the first build invented hosts on the client's real domain, read a back-end field the requirement never mentions, and produced an ACE project the Toolkit could not open. See rules FW-11, FW-12, REQ-03 and NODE-01 in [RULES/integration-standards.md](../RULES/integration-standards.md).
+The earlier runs explain the rules that made this possible: the first build invented hosts on the client's real domain, read a back-end field the requirement never mentions, and produced an ACE project the Toolkit could not open. See rules IBM-01, IBM-02, IBM-04 and IBM-06 in [RULES/ibm-working-method.md](../RULES/ibm-working-method.md).

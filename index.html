@@ -96,14 +96,14 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
     <tr><td><strong>New-service requirement</strong> (mock SRS)</td><td>Two new APIs. For each: method, path, OAuth scope, the six standard headers, a JSON-to-XML field table for the request and an XML-to-JSON table for the success and failure responses, an error-code list and an HTTP status list</td><td>Use case 1 builds from it. Field tables are where real services go wrong: a missed optional field, a condition in prose, a default</td></tr>
     <tr><td><strong>Change requirement</strong> (mock change SRS, id URF-90001)</td><td>Three new optional fields on the inquiry API: one mapped only for one programme code, one defaulted to 'N', one returned only when the back end sends it; one field on the other API explicitly not to be mapped</td><td>Use case 2. Most of the team's work is changes, not new services, and change rules written in prose are easy to get subtly wrong</td></tr>
     <tr><td><strong>Interface Definition Document template</strong></td><td>The bank's IDD layout: sign-off, version history, logical view, header and error mapping, processing logic, data exchange tables</td><td>Use case 3 fills it in from the code; use case 2 updates it</td></tr>
-    <tr><td><strong>Standards rules file</strong></td><td>85 numbered rules Bob reads on every turn: how to work, requirement conformance, ESQL, ACE nodes, API Connect, the IDD, and how to review</td><td>Every step is checked against it, and every review finding cites one of its rule ids. It started at 78 rules; the runs added the rest (see <a href="#rules">below</a>)</td></tr>
+    <tr><td><strong>The bank's standards</strong> (a rules file)</td><td>79 numbered rules: how to work, requirement conformance, ESQL, API Connect, the Interface Definition Document and how to review. Bob reads them on every turn</td><td>Every step is checked against them, and every review finding cites a rule id. Four rules were corrected after the runs (see <a href="#rules">below</a>)</td></tr>
   </tbody>
 </table></div>
 
 <h2 id="how">How it works</h2>
 <ul class="tight">
   <li><strong>Bob Shell in the ACE Toolkit.</strong> The Toolkit's Local Terminal gets an "IBM Bob Shell" entry that starts Bob in the Toolkit workspace, so Bob writes the same files the Toolkit opens. All prompts run in <strong>one chat</strong>, in Bob's built-in Agent mode.</li>
-  <li><strong>The rules file</strong> in <code>.bob/rules/</code> holds the standards. No custom mode is used.</li>
+  <li><strong>Two rules files</strong> in <code>.bob/rules/</code>, read on every turn: the bank's standards, and IBM's working method for Bob, kept apart so the bank can see which is which. No custom mode is used.</li>
   <li><strong>IBM's ACE skills.</strong> The Toolkit adds IBM's open-source <code>ace-flowpilot</code> skills to the workspace when it opens it. They teach Bob the exact project files, node types and ESQL patterns ACE expects. Without them, the first dry run produced ACE files the Toolkit could not open.</li>
   <li><strong>A Toolkit check Bob runs himself.</strong> <code>tools/toolkit_check.py</code> runs the Toolkit's own build and validators headless (<code>mqsicreatebar -cleanBuild</code> on a copy of the project) and prints the Toolkit's problem markers. It reproduces the Toolkit's Problems view exactly, so Bob can see what the Toolkit would show.</li>
   <li><strong>A decisions file.</strong> Bob records every decision the lead gives him in <code>docs/decisions.md</code>. Later steps and reviewers read it.</li>
@@ -132,8 +132,8 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
 <div class="prompt">
   <div class="head"><span class="num">3</span><strong>Write the Interface Definition Document</strong><span class="tag">Use case 3 · 0.87 Bobcoins</span></div>
   <div class="body">
-<pre>Write the Interface Definition Document for the service you just built. Follow `templates/EAI_Interface_Definition_Document_TEMPLATE.md`. Today is &lt;date&gt;.</pre>
-    <div class="why">The document describes the code, not the requirement: processing logic, every input and output field, every error code with its HTTP status, and a diagram of where the service sits. The date matters: without it Bob copied the requirement's date into the document.</div>
+<pre>Write the Interface Definition Document for the service you just built, as a Word file. Follow `templates/EAI_Interface_Definition_Document_TEMPLATE.docx`. Today is &lt;date&gt;.</pre>
+    <div class="why">The document describes the code, not the requirement: processing logic, every input and output field, every error code with its HTTP status, and a diagram of where the service sits. The date matters: without it Bob copied the requirement's date into the document. The rehearsal wrote the document in Markdown; since 6 October it is a Word file in the bank's template, written with Bob's built-in Office tools. That version has not run yet.</div>
   </div>
 </div>
 
@@ -187,27 +187,42 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
 <h3>What the runs taught</h3>
 <ul class="tight">
   <li><strong>Reviews in the same context approve their own work.</strong> Twice a same-context review reported zero findings on code with real defects. The same prompt with a subagent found eight real ones, including a typo in a JSON key that the audit had missed too.</li>
-  <li><strong>A model guesses values it does not have.</strong> The first build put three invented hosts on the bank's real domain into the API and the ESQL, and copied the example requirement id from the rules into a change comment. Rule FW-11 (placeholders only) stopped it in every later run.</li>
+  <li><strong>A model guesses values it does not have.</strong> The first build put three invented hosts on the bank's real domain into the API and the ESQL, and copied the example requirement id from the rules into a change comment. Rule IBM-01 (placeholders only) stopped it in every later run.</li>
   <li><strong>The Toolkit is the judge, and Bob cannot see it.</strong> Bob's first ACE project compiled with <code>ibmint</code> but would not open in the Toolkit. Bob cannot read the Problems view; the headless Toolkit check gives him its errors. It does not report warnings, so a person still looks at the Problems view after each step.</li>
   <li><strong>A rule can cause a defect.</strong> A rule told Bob to move reusable procedures to schema level without saying such a procedure cannot touch the message trees. Bob followed it and created seven Toolkit warnings. Rules need the same review as code.</li>
 </ul>
 
-<h2 id="rules">Rules that came out of the runs</h2>
+<h2 id="rules">The two rules files, and what changed</h2>
+<p>During the runs, each mistake Bob made became a rule. On 5 October those rules went into the bank's standards file, which mixed the bank's standards with IBM's instructions to Bob. On 6 October they were split into two files, so the bank's file holds only its standards and IBM's method is labelled as IBM's. Bob reads both, so it works the same way.</p>
+
+<h3>The bank's standards: four corrections</h3>
+<p><a href="RULES/client-standards.md">RULES/client-standards.md</a> · 79 rules: the file from the scoping session plus these corrections.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Rule</th><th>Change</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>FW-07</code></td><td>The example change comment shows <code>&lt;requirement id&gt;</code>, <code>&lt;author&gt;</code> and <code>&lt;date&gt;</code> instead of a real-looking id. A new service has no change comment</td><td>Bob copied the example id into new code</td></tr>
+    <tr><td><code>FW-10</code> (new)</td><td>A REST service in the middleware layer is an ACE REST API project, not an application with HTTP Input and Reply nodes</td><td>The bank's requirement documents list its services as REST APIs</td></tr>
+    <tr><td><code>ESQL-06</code></td><td>A schema-level routine cannot use <code>OutputRoot</code> and the other correlation names; pass them as parameters</td><td>Bob followed the rule as written and created seven Toolkit warnings</td></tr>
+    <tr><td><code>API-08</code></td><td>Every status code in the requirement, including 404, in both the API Connect and the ACE definitions</td><td>The rule left out 404, which the requirement lists</td></tr>
+  </tbody>
+</table></div>
+
+<h3>IBM's working method for Bob</h3>
+<p><a href="RULES/ibm-working-method.md">RULES/ibm-working-method.md</a> · 12 rules. Each one answers a mistake from the runs.</p>
 <div class="table-wrap"><table>
   <thead><tr><th>Rule</th><th>What it says</th><th>The mistake it stops</th></tr></thead>
   <tbody>
-    <tr><td><code>FW-07</code></td><td>Change comments take the requirement id, author and date from the prompt; never the example id or the requirement's date; none on a new service</td><td>An example id copied into code; wrong dates</td></tr>
-    <tr><td><code>FW-11</code></td><td>Never invent a value; use <code>TODO_…</code> or a URL on the reserved <code>.invalid</code> domain, and list the placeholders</td><td>Invented hostnames on the client's domain</td></tr>
-    <tr><td><code>FW-12</code></td><td>A project is done when the Toolkit shows no errors: run the Toolkit check and fix what it reports</td><td>Projects that compile but do not open</td></tr>
-    <tr><td><code>FW-13</code></td><td>Record the lead's decisions in <code>docs/decisions.md</code>; reviewers read it</td><td>Reviews reporting deliberate choices as defects</td></tr>
-    <tr><td><code>REQ-03</code></td><td>Read and write only the fields and headers the requirement names, on both sides</td><td>A back-end field read that the requirement never mentions</td></tr>
-    <tr><td><code>API-08</code></td><td>Every status code in the requirement, in both the API Connect and the ACE definitions</td><td>Missing status codes in the ACE definition</td></tr>
-    <tr><td><code>NODE-01..03</code></td><td>HTTP Request URL as a placeholder set at run time; no semicolon after <code>BROKER SCHEMA</code>; no invented message catalog</td><td>"Unset mandatory property"; Toolkit syntax errors; invented catalogs</td></tr>
-    <tr><td><code>DOC-01</code></td><td>The document lives in <code>docs/</code>; every change adds a version row and raises the version in the header and the file name</td><td>Documents stuck at version 1.0</td></tr>
-    <tr><td>Review section</td><td>Review in a fresh subagent; read the decisions; trace every field and value; "standard" is not a source; rerun the Toolkit check</td><td>Reviews that approve their own work</td></tr>
+    <tr><td><code>IBM-01</code></td><td>Never invent a value; use <code>TODO_…</code> or a URL on the reserved <code>.invalid</code> domain, and list the placeholders</td><td>Invented hostnames on the client's domain</td></tr>
+    <tr><td><code>IBM-02</code></td><td>Read and write only the fields and headers the requirement names, on both sides</td><td>A back-end field read that the requirement never mentions</td></tr>
+    <tr><td><code>IBM-03</code></td><td>Take dates from the prompt</td><td>The requirement's date in change comments</td></tr>
+    <tr><td><code>IBM-04</code>, <code>IBM-05</code></td><td>Run the Toolkit check and fix what it reports; the exact project settings line</td><td>Projects that compile but do not open; an encoding warning</td></tr>
+    <tr><td><code>IBM-06</code> to <code>IBM-08</code></td><td>HTTP Request URL as a placeholder set at run time; no semicolon after <code>BROKER SCHEMA</code>; no invented message catalog</td><td>"Unset mandatory property"; Toolkit syntax errors; invented catalogs</td></tr>
+    <tr><td><code>IBM-09</code></td><td>Record the lead's decisions in <code>docs/decisions.md</code></td><td>Reviews reporting deliberate choices as defects</td></tr>
+    <tr><td><code>IBM-10</code></td><td>Write the Interface Definition Document as a Word file in the bank's template</td><td>Replaces the Markdown document used on 5 October, which was easier to check but not the bank's format</td></tr>
+    <tr><td><code>IBM-11</code>, <code>IBM-12</code></td><td>Review in a fresh subagent; read the decisions; trace every field and value; rerun the Toolkit check</td><td>Reviews that approve their own work</td></tr>
   </tbody>
 </table></div>
-<p>The full rules file is in <a href="RULES/integration-standards.md">RULES/integration-standards.md</a>.</p>
+<p>Some of the 5 October additions were not needed in the bank's file: the Markdown document was a convenience for checking, and the ACE node notes are product facts, not bank standards. They now sit in IBM's file or were reverted.</p>
 
 <h2 id="running">Running it</h2>
 <ol class="flow">

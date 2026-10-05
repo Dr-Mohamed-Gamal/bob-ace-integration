@@ -1,13 +1,16 @@
-# Integration standards: App Connect Enterprise, API Connect and MQ
+# Client integration standards: App Connect Enterprise, API Connect and MQ
 
 These rules apply to every task in the Bob workspace: creating a flow or an API, changing one,
-documenting one and reviewing one. They were written for a bank's integration team, from its coding
+documenting one and reviewing one. They are the bank's own standards, taken from its coding
 standards, its API Connect checklist, its requirement and interface-document templates and what the
-team said in the scoping sessions, and grown during the pilot runs of 5 October 2026: each rule added
-then stops a mistake Bob made in a run. Bob reads this file on every turn (`.bob/rules/`).
+integration team said in the scoping sessions, with four corrections made after the pilot runs of
+5 October 2026 (FW-07, FW-10, ESQL-06, API-08). Bob reads this file on every turn (`.bob/rules/`).
 
 If a rule and the requirement document disagree, or the requirement document is silent, stop and
 ask. Do not guess.
+
+IBM's instructions on how Bob works in this workspace (placeholders, the Toolkit check, the
+decisions file, how a review is run, ACE notes) are in [`ibm-working-method.md`](ibm-working-method.md) next to this file.
 
 ## 1. How to work (FW)
 
@@ -28,9 +31,8 @@ ask. Do not guess.
 - **FW-07** Every change to existing code carries a comment with the requirement id, the author
   and the date, in the form already used in that file:
   `-- Added the below field mapping as part of <requirement id> By <author> on <date>`.
-  The requirement id comes from the change SRS or the prompt, the author and the date from the
-  prompt (if the prompt gives no date, run `date`; never copy a date from the SRS). Never invent or
-  reuse an id. A new service has no change comment.
+  The id comes from the change SRS or the prompt, the author and date from the prompt. A new
+  service has no change comment.
 - **FW-08** Build only. Create the BAR when asked. Never deploy, never run `mqsideploy`, never push
   to the runtime repository. Deployment belongs to the pipeline.
 - **FW-09** Target versions are ACE 13.0.7.2 with Toolkit v13, MQ 9.4 and Java 17.
@@ -39,20 +41,6 @@ ask. Do not guess.
   and HTTP Reply nodes. (Source: the team's requirement documents list REST services as Method |
   RestAPI | OperationName | Provider, and its interface documents place them in a "Global REST
   Layer".)
-- **FW-11** Never invent a value: no hostnames, URLs, domains, requirement ids, catalog or space
-  names, queue names, field names or credentials that are not in the SRS or the prompt. Where a
-  value is needed but unknown, use a placeholder: a property value `TODO_<NAME>`, or a URL on the
-  reserved `.invalid` domain, for example `http://lms.todo.invalid/PointsInquiry`. Never put the client's
-  domain in a value. List every placeholder in your final summary.
-- **FW-13** Record every decision the lead gives you (answers to your questions, chosen names,
-  "no framework", placeholders accepted) in `docs/decisions.md`, one line each with the date. Later
-  steps and reviewers read it.
-- **FW-12** An ACE project is done only when the ACE Toolkit shows no errors and no warnings for it.
-  Run `python3 ../tools/toolkit_check.py <project folder>` from the workspace (it runs the Toolkit's
-  own validation, about a minute) and fix every problem it reports, then run it again. The check
-  reports errors only; also avoid the Toolkit's warnings. Each ACE project has
-  `.settings/org.eclipse.core.resources.prefs` with exactly `eclipse.preferences.version=1` and
-  `encoding/<project>=UTF-8`, where `<project>` is literal text, not the project name.
 
 ## 2. Requirement conformance (REQ)
 
@@ -60,9 +48,7 @@ ask. Do not guess.
   in the "Transformation/Processing Logic" or "Description" column.
 - **REQ-02** An optional field must never make the request fail when it is absent. Apply a default
   only when the SRS gives one.
-- **REQ-03** A row marked `N/A` or "not required to be mapped" must not be mapped. Read and write
-  only the fields and headers the SRS names, on the channel side and on the back-end side. If the
-  design seems to need another one, ask.
+- **REQ-03** A row marked `N/A` or "not required to be mapped" must not be mapped.
 - **REQ-04** Conditions written in prose ("mapped only if …", "set to null if …") are implemented
   exactly. Existing conditions on neighbouring fields stay unchanged.
 - **REQ-05** For a change, touch only the services in the SRS scope table. One requirement usually
@@ -89,8 +75,8 @@ ask. Do not guess.
 - **ESQL-05** Keywords in uppercase, one statement per line, each ending with a semicolon.
 - **ESQL-06** Reusable constants, functions and procedures are declared at broker-schema level,
   not inside a module. A schema-level routine cannot use correlation names (`InputRoot`,
-  `OutputRoot`, `LocalEnvironment`, `OutputLocalEnvironment`, `Environment`): pass the trees as
-  `REFERENCE` parameters, or keep a routine that needs them inside the module. Call them by fully-qualified name, or through a `PATH` statement placed in
+  `OutputRoot`, `LocalEnvironment`, `Environment`): pass the trees as `REFERENCE` parameters, or keep
+  a routine that needs them inside the module. Call them by fully-qualified name, or through a `PATH` statement placed in
   the same file outside any `MODULE`. Never define a function or procedure inside `EVAL`.
 - **ESQL-07** Correlation names: in a Compute node read from `InputRoot` / `InputBody` and write
   to `OutputRoot`; in Database and Filter nodes use `Root` / `Body`. Only a Compute node creates
@@ -129,14 +115,6 @@ ask. Do not guess.
   exists.
 - **ERR-03** Log through the existing log4j-based logging node and its existing destinations.
 
-- **NODE-01** HTTP Request node: the "Web service URL" property is mandatory. Set it to a
-  placeholder on the `.invalid` domain (FW-11) and set the real URL at run time in
-  `LocalEnvironment.Destination.HTTP.RequestURL` from the user-defined property.
-- **NODE-02** In ESQL, `BROKER SCHEMA a.b.c` has no semicolon. A message flow's `nsURI` and
-  `nsPrefix` match its path in the project.
-- **NODE-03** `THROW USER EXCEPTION` uses the framework's message catalog. When there is no
-  framework, leave out `CATALOG` so ACE uses its default; never invent or placeholder a catalog name.
-
 ## 4. API Connect (API, SEC, INV, PRD, PR)
 
 - **API-01** Design first: an OpenAPI/Swagger 2.0 or 3.0 definition before implementation. API
@@ -155,8 +133,8 @@ ask. Do not guess.
   a resource. `DELETE` is not recommended unless the provider supports it.
 - **API-07** Payloads are JSON.
 - **API-08** Declare request and response definitions with samples. Provide schemas and sample
-  data for every HTTP status code in the SRS list, at least 200, 400, 401, 403, 404, 429, 500, 502
-  and 504, in both the API Connect definition and the ACE `openapi.json`.
+  data for every HTTP status code in the SRS, at least 200, 400, 401, 403, 404, 429, 500, 502 and
+  504, in both the API Connect definition and the ACE `openapi.json`.
 - **API-09** Fill in the API description, including the provider system's functional details.
 - **API-10** Errors use informative codes and messages and one consistent response shape. Status
   codes: 200 success, 400 bad request (functional failure for the input), 401 unauthorized,
@@ -199,40 +177,20 @@ ask. Do not guess.
 
 ## 5. Interface Definition Document (DOC)
 
-- **DOC-01** One document per service, in `docs/`, named
-  `EAI_Interface_Definition_Document_<Service>_v<x.y>.md` (Markdown with the template's structure;
-  it is converted to Word afterwards). It holds the complete current state of the service. Every
-  change updates it, adds a Version History row, and raises the version in the header and in the
-  file name (for example `_v1.0.md` becomes `_v1.1.md`).
+- **DOC-01** One document per service, named
+  `EAI_Interface_Definition_Document_<Service>_v<x.y>.docx`. It holds the complete current state
+  of the service. Every change updates it and adds a Version History row.
 - **DOC-02** Keep the fixed structure of `templates/EAI_Interface_Definition_Document_TEMPLATE.md`.
 - **DOC-03** Data Exchange lists every input and output field of every operation, in the columns
   Common XSD Field, Description, Data Type and Transformation/Processing Logic.
 - **DOC-04** The diagram shows only where the service sits: consuming applications, API gateway,
-  middleware layers, back end. No infrastructure. Draw it as a Mermaid block in the document.
+  middleware layers, back end. No infrastructure. The image is embedded in the document.
 - **DOC-05** Document the code as it is. Do not describe behaviour that is not in the code. Mark
   anything you could not determine as "To be confirmed".
 
 ## 6. When asked to review
 
-Do the review in a subagent (`spawn_subagent`, without the conversation history), so it judges the
-files as they are and not what you remember building, then report its findings. The reviewer
-re-reads every file it judges and re-runs every check itself, including
-`python3 ../tools/toolkit_check.py <project folder>`. It reads `docs/decisions.md` first and does not
-report a recorded decision as a finding.
-
 Review on three questions, in this order: does the change match the requirement, does it follow
-these standards, does it fit the framework. Review it as if someone else wrote it. Always do these
-checks:
-
-1. For each SRS field row, name the code line that maps it. Report every row with no line, and
-   every field or header in the code that is not in the SRS (REQ-01, REQ-03).
-2. List every literal value in the files: URLs, hosts, ids, codes, message catalogs, catalog, space
-   and property names. For each, say where it comes from: the SRS, the prompt, the rules, or nowhere.
-   A value from nowhere is a finding (FW-11); "standard" is not a source.
-3. Check every change comment's requirement id against the SRS (FW-07).
-4. Compare the HTTP status codes and error codes in every API file with the SRS lists (API-08, REQ-08).
-5. Run the Toolkit check (FW-12).
-
-Report each finding as one table row: rule id, file and line, what is wrong, the fix. A rule counts
-as checked only when you name the file and line you looked at. Do not change any file during a
-review.
+these standards, does it fit the framework. Report each finding as one table row: rule id, file
+and line, what is wrong, the fix. List the rules you checked and found no issue with. Do not
+change any file during a review.

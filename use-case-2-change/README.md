@@ -18,4 +18,4 @@ A change requirement (id URF-90001) for two existing APIs. For the inquiry API: 
 
 All checks passed: the programme-code condition, the 'N' default, the guarded output field, change comments dated with the date in the prompt, both API definitions, the document's version raised in its header. The review of the change (use case 6, prompt 7) then found the gaps a person should fix: the document file name and the API versions were not raised. Cost: 6.7 Bobcoins.
 
-Without the date in the prompt, an earlier run dated every change comment with the requirement's date (rule FW-07).
+Without the date in the prompt, an earlier run dated every change comment with the requirement's date (rules FW-07 and IBM-03).
