@@ -223,6 +223,14 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
   </tbody>
 </table></div>
 <p>Some of the 5 October additions were not needed in the bank's file: the Markdown document was a convenience for checking, and the ACE node notes are product facts, not bank standards. They now sit in IBM's file or were reverted.</p>
+<h3>Made ready for the bank's real workspace</h3>
+<p>The runs used mock documents in an empty workspace. Before Bob works on the bank's real code, four rules were adjusted on 6 October so they cannot steer it wrong there:</p>
+<ul class="tight">
+  <li><strong>IBM-01</strong> lets Bob reuse names already in the workspace, as the bank's FW-04 requires; only values found nowhere become placeholders.</li>
+  <li><strong>IBM-04</strong>: the Toolkit check runs on Windows, macOS and Linux, and when it cannot find ACE Bob asks the developer for the Problems view instead.</li>
+  <li><strong>API-08</strong> adds the full set of status codes to new APIs only; a change updates only the responses its requirement covers.</li>
+  <li><strong>FW-10</strong> is marked "to be confirmed" with the bank's middleware team, and a change keeps a service's existing project type.</li>
+</ul>
 
 <h2 id="running">Running it</h2>
 <ol class="flow">

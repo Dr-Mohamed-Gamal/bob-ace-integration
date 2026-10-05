@@ -53,7 +53,7 @@ Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [to
 
 ## What Changed in the Rules (6 October)
 
-During the runs each mistake Bob made became a rule, first inside the bank's standards file. On 6 October the additions were split out: the bank's file is back to the version from the scoping session with four corrections (FW-07 example comment, FW-10 REST API project, ESQL-06 correlation names, API-08 status code 404), and IBM's instructions to Bob moved to their own file. The Interface Definition Document went back to Word, the bank's format; the Markdown version used on 5 October was a convenience for checking. Details on the [page](index.html#rules).
+During the runs each mistake Bob made became a rule, first inside the bank's standards file. On 6 October the additions were split out: the bank's file is back to the version from the scoping session with four corrections (FW-07 example comment, FW-10 REST API project, ESQL-06 correlation names, API-08 status code 404), and IBM's instructions to Bob moved to their own file. The Interface Definition Document went back to Word, the bank's format; the Markdown version used on 5 October was a convenience for checking. Four rules were then adjusted for the bank's real workspace (reuse of existing names, a Toolkit check that also runs on Windows, status codes only on new APIs, FW-10 to be confirmed). Details on the [page](index.html#rules).
 
 ## Repository
 

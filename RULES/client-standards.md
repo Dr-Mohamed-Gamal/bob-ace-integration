@@ -36,11 +36,12 @@ decisions file, how a review is run, ACE notes) are in [`ibm-working-method.md`]
 - **FW-08** Build only. Create the BAR when asked. Never deploy, never run `mqsideploy`, never push
   to the runtime repository. Deployment belongs to the pipeline.
 - **FW-09** Target versions are ACE 13.0.7.2 with Toolkit v13, MQ 9.4 and Java 17.
-- **FW-10** A REST service in Online Middleware is an ACE **REST API project**: the OpenAPI document
+- **FW-10** *(To be confirmed with the middleware team.)* A REST service in Online Middleware is an
+  ACE **REST API project**: the OpenAPI document
   is the contract and each operation is a subflow. Do not build it as an Application with HTTP Input
   and HTTP Reply nodes. (Source: the team's requirement documents list REST services as Method |
   RestAPI | OperationName | Provider, and its interface documents place them in a "Global REST
-  Layer".)
+  Layer".) For a change to an existing service, keep the project type it already has.
 
 ## 2. Requirement conformance (REQ)
 
@@ -132,9 +133,10 @@ decisions file, how a review is run, ACE notes) are in [`ibm-working-method.md`]
 - **API-06** HTTP methods: `GET` retrieves, `POST` creates, `PUT` replaces, `PATCH` updates part of
   a resource. `DELETE` is not recommended unless the provider supports it.
 - **API-07** Payloads are JSON.
-- **API-08** Declare request and response definitions with samples. Provide schemas and sample
-  data for every HTTP status code in the SRS, at least 200, 400, 401, 403, 404, 429, 500, 502 and
-  504, in both the API Connect definition and the ACE `openapi.json`.
+- **API-08** Declare request and response definitions with samples. For a new API, provide schemas
+  and sample data for every HTTP status code in the SRS, at least 200, 400, 401, 403, 404, 429, 500,
+  502 and 504, in both the API Connect definition and the ACE `openapi.json`. For a change, update
+  only the responses the change SRS covers (REQ-05).
 - **API-09** Fill in the API description, including the provider system's functional details.
 - **API-10** Errors use informative codes and messages and one consistent response shape. Status
   codes: 200 success, 400 bad request (functional failure for the input), 401 unauthorized,

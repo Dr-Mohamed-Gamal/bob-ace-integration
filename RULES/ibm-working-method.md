@@ -8,8 +8,9 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
 ## Values and fields
 
 - **IBM-01** Never invent a value: no hostnames, URLs, domains, requirement ids, catalog or space
-  names, queue names, field names or credentials that are not in the SRS or the prompt. Where a
-  value is needed but unknown, use a placeholder: a property value `TODO_<NAME>`, or a URL on the
+  names, queue names, field names or credentials that are not in the SRS, the prompt or the existing
+  code in the workspace. Reuse the names the workspace already uses (FW-04). Where a value is needed
+  and none of these has it, use a placeholder: a property value `TODO_<NAME>`, or a URL on the
   reserved `.invalid` domain, for example `http://lms.todo.invalid/PointsInquiry`. Never put the
   client's domain in a value. List every placeholder in your final summary.
   *(Dry run: Bob put three invented hosts on the client's real domain into the code.)*
@@ -23,9 +24,12 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
 ## Checking an ACE project
 
 - **IBM-04** An ACE project is done only when the ACE Toolkit shows no errors and no warnings for
-  it. Run `python3 ../tools/toolkit_check.py <project folder>` from the workspace: it runs the
-  Toolkit's own build and validators on a copy (about a minute). Fix every problem it reports and
-  run it again. It reports errors only, so also avoid the warnings listed in IBM-05 to IBM-08.
+  it. If `tools/toolkit_check.py` is in the repository, run
+  `python3 ../tools/toolkit_check.py <project folder>` from the workspace (Windows, macOS or Linux):
+  it runs the Toolkit's own build and validators on a copy, about a minute. Fix every problem it
+  reports and run it again. If the check is not available or cannot find ACE, say so and ask the
+  developer to refresh the project in the Toolkit and paste the Problems view. The check reports
+  errors only, so also avoid the warnings listed in IBM-05 to IBM-08.
   *(Dry run: Bob's first ACE project compiled but would not open in the Toolkit.)*
 - **IBM-05** Each ACE project has `.settings/org.eclipse.core.resources.prefs` with exactly
   `eclipse.preferences.version=1` and `encoding/<project>=UTF-8`, where `<project>` is literal text,
