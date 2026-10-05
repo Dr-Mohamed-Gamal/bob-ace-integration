@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IBM Bob on App Connect Enterprise</title>
+<meta name="description" content="Seven prompts that take an integration requirement to a built, documented, reviewed and changed REST service on IBM App Connect Enterprise and API Connect, with IBM Bob Shell in the ACE Toolkit.">
+<style>
+/* Layout: one reading column, prompt blocks as the spine of the page; same system as the Netcool pilot page */
+:root {
+  --bg: #ffffff; --surface: #f5f7fa; --text: #1b1f24; --muted: #57606a; --line: #d8dee4;
+  --accent: #0f62fe; --accent-soft: #e8f0ff; --on-accent: #ffffff; --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e; --code-bg: #f0f2f5;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "IBM Plex Sans", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9da7b3; --line: #30363d;
+    --accent: #78a9ff; --accent-soft: #1b2a44; --on-accent: #0d1117; --ok: #3fb950; --warn: #d29922; --bad: #f85149; --code-bg: #1c2128;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9da7b3; --line: #30363d;
+  --accent: #78a9ff; --accent-soft: #1b2a44; --on-accent: #0d1117; --ok: #3fb950; --warn: #d29922; --bad: #f85149; --code-bg: #1c2128;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--sans); }
+main { max-width: 920px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 80px; }
+header { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 32px; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 12px; text-wrap: balance; }
+h2 { font-size: 1.35rem; margin: 44px 0 12px; padding-top: 8px; text-wrap: balance; }
+h3 { font-size: 1.05rem; margin: 24px 0 8px; }
+p, li { color: var(--text); max-width: 72ch; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { color: var(--muted); font-size: .9rem; margin-top: 12px; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto;
+  white-space: pre-wrap; font: .86rem/1.5 var(--mono); color: var(--text); margin: 10px 0 6px; }
+.table-wrap { overflow-x: auto; margin: 12px 0 20px; }
+table { border-collapse: collapse; width: 100%; font-size: .94rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+th { background: var(--surface); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 16px 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.card h3 { margin: 0 0 6px; }
+.card .uc { font: 600 .78rem/1 var(--mono); color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
+.card p { margin: 6px 0 0; font-size: .94rem; }
+.prompt { border: 1px solid var(--line); border-radius: 10px; margin: 18px 0; overflow: hidden; }
+.prompt .head { background: var(--surface); padding: 12px 16px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.prompt .num { background: var(--accent); color: var(--on-accent); border-radius: 999px; min-width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; flex: none; }
+.prompt .head strong { font-size: 1.05rem; }
+.prompt .head .tag { color: var(--muted); font-size: .88rem; }
+.prompt .body { padding: 4px 16px 14px; min-width: 0; }
+.note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 6px; margin: 16px 0; }
+.why { border-left: 4px solid var(--ok); background: var(--surface); padding: 10px 14px; border-radius: 6px; margin: 10px 0; }
+.ok { color: var(--ok); font-weight: 600; }
+.warn { color: var(--warn); font-weight: 600; }
+.bad { color: var(--bad); font-weight: 600; }
+ol.flow, ul.tight { padding-left: 22px; }
+ol.flow li, ul.tight li { margin: 4px 0; }
+footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px; color: var(--muted); font-size: .9rem; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>IBM Bob on App Connect Enterprise</h1>
+  <p class="lead">Seven prompts that take an integration requirement to a built, documented, reviewed and changed REST service on IBM App Connect Enterprise (ACE) and IBM API Connect, with IBM Bob Shell running inside the ACE Toolkit.</p>
+  <p class="meta">Pilot use cases for a bank's integration team · dry runs and a clean rehearsal on 5 October 2026 · ACE 13.0.9, Bob Shell 2.0.5</p>
+</header>
+
+<div class="note">The bank's documents, code and the reports made from them are not published here. The runs used mock requirement documents prepared for the pilot. This page describes the inputs and why each is used, the method, every prompt as sent, and what the runs showed.</div>
+
+<h2 id="use-cases">The use cases</h2>
+<p>The bank's integration team builds and changes REST services in two layers: an API on API Connect that channels call, and an ACE service behind it that maps JSON to the back end's XML and calls the back end. The team listed six use cases for IBM Bob. Four form the pilot and run here in the order the team agreed:</p>
+<div class="cards">
+  <div class="card"><span class="uc">Use case 1</span><h3>Create a service</h3><p>Build a new REST service from a signed-off requirement document: the API Connect API and product, and the ACE REST API project behind it.</p></div>
+  <div class="card"><span class="uc">Use case 3</span><h3>Document it</h3><p>Write the service's Interface Definition Document in the bank's template, from the code as built.</p></div>
+  <div class="card"><span class="uc">Use case 6</span><h3>Review it</h3><p>Review the service against the requirement and the bank's standards, report findings by rule, file and line, then fix the accepted ones.</p></div>
+  <div class="card"><span class="uc">Use case 2</span><h3>Change it</h3><p>Apply a change requirement to the existing service: new fields, conditions and defaults, with change comments and an updated document.</p></div>
+</div>
+<p>Use cases 4 (troubleshooting) and 5 (root-cause analysis) were parked for a later phase.</p>
+
+<h2 id="inputs">The input data, and why each is used</h2>
+<p>The bank cannot circulate its requirement documents, so IBM prepared mock ones in the bank's own layouts, for an invented loyalty-points project with an invented back end called LMS. The layouts matter more than the content: they are what Bob has to read and fill in on real work.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Input</th><th>What is in it</th><th>Why it is used</th></tr></thead>
+  <tbody>
+    <tr><td><strong>New-service requirement</strong> (mock SRS)</td><td>Two new APIs. For each: method, path, OAuth scope, the six standard headers, a JSON-to-XML field table for the request and an XML-to-JSON table for the success and failure responses, an error-code list and an HTTP status list</td><td>Use case 1 builds from it. Field tables are where real services go wrong: a missed optional field, a condition in prose, a default</td></tr>
+    <tr><td><strong>Change requirement</strong> (mock change SRS, id URF-90001)</td><td>Three new optional fields on the inquiry API: one mapped only for one programme code, one defaulted to 'N', one returned only when the back end sends it; one field on the other API explicitly not to be mapped</td><td>Use case 2. Most of the team's work is changes, not new services, and change rules written in prose are easy to get subtly wrong</td></tr>
+    <tr><td><strong>Interface Definition Document template</strong></td><td>The bank's IDD layout: sign-off, version history, logical view, header and error mapping, processing logic, data exchange tables</td><td>Use case 3 fills it in from the code; use case 2 updates it</td></tr>
+    <tr><td><strong>Standards rules file</strong></td><td>85 numbered rules Bob reads on every turn: how to work, requirement conformance, ESQL, ACE nodes, API Connect, the IDD, and how to review</td><td>Every step is checked against it, and every review finding cites one of its rule ids. It started at 78 rules; the runs added the rest (see <a href="#rules">below</a>)</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="how">How it works</h2>
+<ul class="tight">
+  <li><strong>Bob Shell in the ACE Toolkit.</strong> The Toolkit's Local Terminal gets an "IBM Bob Shell" entry that starts Bob in the Toolkit workspace, so Bob writes the same files the Toolkit opens. All prompts run in <strong>one chat</strong>, in Bob's built-in Agent mode.</li>
+  <li><strong>The rules file</strong> in <code>.bob/rules/</code> holds the standards. No custom mode is used.</li>
+  <li><strong>IBM's ACE skills.</strong> The Toolkit adds IBM's open-source <code>ace-flowpilot</code> skills to the workspace when it opens it. They teach Bob the exact project files, node types and ESQL patterns ACE expects. Without them, the first dry run produced ACE files the Toolkit could not open.</li>
+  <li><strong>A Toolkit check Bob runs himself.</strong> <code>tools/toolkit_check.py</code> runs the Toolkit's own build and validators headless (<code>mqsicreatebar -cleanBuild</code> on a copy of the project) and prints the Toolkit's problem markers. It reproduces the Toolkit's Problems view exactly, so Bob can see what the Toolkit would show.</li>
+  <li><strong>A decisions file.</strong> Bob records every decision the lead gives him in <code>docs/decisions.md</code>. Later steps and reviewers read it.</li>
+  <li><strong>Reviews in a fresh context.</strong> The review prompt asks Bob to use a subagent: a second Bob with its own context that never saw the build, reads every file as it is, and reruns the checks.</li>
+</ul>
+
+<h2 id="prompts">The seven prompts</h2>
+<p>As sent in the clean rehearsal. <code>&lt;date&gt;</code> is today's date.</p>
+
+<div class="prompt">
+  <div class="head"><span class="num">1</span><strong>Plan the service</strong><span class="tag">Use case 1 · 0.65 Bobcoins</span></div>
+  <div class="body">
+<pre>Read `requirements/API-SRS-Project_MOCK_Loyalty_Rewards-V1.0.md`. Tell me how you will build LoyaltyPointsInquiryAPI: which layer each part goes in, the files you will create, and any question you have. Do not create anything yet.</pre>
+    <div class="why">Nothing is written before a person has seen the plan. Bob decides the layers from the requirement's scope table, lists every file, lists the placeholders it will need, and asks what the requirement leaves open. In two runs it asked five and six questions, and the questions differed.</div>
+  </div>
+</div>
+
+<div class="prompt">
+  <div class="head"><span class="num">2</span><strong>Answer and build</strong><span class="tag">Use case 1 · 5.61 Bobcoins</span></div>
+  <div class="body">
+<pre>Answers and decisions: no broker schema (files in the project root, like ExampleAPI). There is no framework in this workspace: keep it self-contained, write no new libraries, and mark each plug-in point with `TODO framework`. The user-defined property for the LMS URL is `LMS_URL`. API Connect: base path `/loyalty/v1`, files in `apic/`, calling ACE through the catalog property `omw-loyalty-url`; one product `LoyaltyRewards` (the redemption API joins it later); pipeline values as `TODO_` placeholders. Send no extra headers or credentials to LMS: the SRS names none. Generate X-TRACKING-ID as a UUID in OMW and return it as a response header. Reject an invalid `programCode` with EAI-LMS-BRK-002 and HTTP 400. Build only `LoyaltyPointsInquiryAPI` now and do not write the Interface Definition Document yet. Go ahead and build it as planned.</pre>
+    <div class="why">One block of decisions answers every question Bob asked in either run, so the prompt does not need rewriting for each run. Bob builds the API Connect API, product and pipeline properties, and an ACE REST API project (OpenAPI document, generated main flow, one subflow per operation, ESQL), then runs the Toolkit check, fixes what it reports and runs it again.</div>
+  </div>
+</div>
+
+<div class="prompt">
+  <div class="head"><span class="num">3</span><strong>Write the Interface Definition Document</strong><span class="tag">Use case 3 · 0.87 Bobcoins</span></div>
+  <div class="body">
+<pre>Write the Interface Definition Document for the service you just built. Follow `templates/EAI_Interface_Definition_Document_TEMPLATE.md`. Today is &lt;date&gt;.</pre>
+    <div class="why">The document describes the code, not the requirement: processing logic, every input and output field, every error code with its HTTP status, and a diagram of where the service sits. The date matters: without it Bob copied the requirement's date into the document.</div>
+  </div>
+</div>
+
+<div class="prompt">
+  <div class="head"><span class="num">4</span><strong>Review in a fresh context</strong><span class="tag">Use case 6 · 1.77 Bobcoins</span></div>
+  <div class="body">
+<pre>Review what you built against the standards, using a subagent with a fresh context. Do not change any file.</pre>
+    <div class="why">The reviewer re-reads every file, maps every requirement row to a code line, traces every literal value to the requirement, the prompt or the rules, compares status and error codes, and reruns the Toolkit check. Each finding is one table row: rule id, file and line, what is wrong, the fix. In the rehearsal it found two runtime bugs that the Toolkit check and the audits had passed.</div>
+  </div>
+</div>
+
+<div class="prompt">
+  <div class="head"><span class="num">5</span><strong>Fix the accepted findings</strong><span class="tag">Use case 6 · 6.72 Bobcoins</span></div>
+  <div class="body">
+<pre>Fix findings F-01, F-04, F-05, F-06, F-07, F-09 and F-12. F-02 and F-03 are by design: there is no framework in this workspace, keep the `TODO framework` markers. F-08 and F-10 stay as placeholders. Keep HTTP 400 for EAI-LMS-BRK-004 (F-11): an LMS error is a functional failure (SRS 2.3). Record these decisions and the ones I gave you before in `docs/decisions.md`. Then run the Toolkit check, and update the Interface Definition Document where the behaviour it describes has changed.</pre>
+    <div class="why">This is the human step of use case 6: a person reads the review and decides which findings to accept. The finding numbers change from run to run; the shape of the prompt does not. Recording the decisions stops the next review from reporting them again.</div>
+  </div>
+</div>
+
+<div class="prompt">
+  <div class="head"><span class="num">6</span><strong>Apply the change</strong><span class="tag">Use case 2 · 6.73 Bobcoins</span></div>
+  <div class="body">
+<pre>Read `requirements/API_SRS-MOCK_Loyalty_Partner_Redemption_Changes_V1.0.md` and apply the change for LoyaltyPointsInquiryAPI. The requirement id is URF-90001, the author is Mohamed Gamal and the date is &lt;date&gt;.</pre>
+    <div class="why">Bob maps the three new fields with their conditions, adds a change comment with the id, author and date at each change, updates both API definitions and the document's version history, and does not touch or invent the second API, which is not in the workspace.</div>
+  </div>
+</div>
+
+<div class="prompt">
+  <div class="head"><span class="num">7</span><strong>Review the change</strong><span class="tag">Use case 6 · 1.43 Bobcoins</span></div>
+  <div class="body">
+<pre>Review the URF-90001 change against the change SRS and the standards, using a subagent with a fresh context. Do not change any file.</pre>
+    <div class="why">A second fresh review, on the change only. In the rehearsal it found four real gaps and no false alarms, because it read the decisions file first.</div>
+  </div>
+</div>
+
+<h2 id="results">What the runs showed</h2>
+<p>Three runs on 5 October: an afternoon dry run, a night run that tested every use case, and a clean rehearsal from a reset workspace with the final prompts. Every step was checked three ways: the Toolkit check, an audit script (invented values, requirement fields, status codes, schema names), and a person reading the diff.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Rehearsal step</th><th>Toolkit check</th><th>What the checks found</th></tr></thead>
+  <tbody>
+    <tr><td>1–2 Plan and build</td><td class="ok">Pass, first time</td><td>Every requirement field mapped, all nine status codes in both API files, no invented values: 21 placeholders, all <code>TODO_…</code> or on the reserved <code>.invalid</code> domain</td></tr>
+    <tr><td>3 Document</td><td>n/a</td><td>Every template section and field; the date from the prompt; the error behaviour it describes matches the code</td></tr>
+    <tr><td>4 Review</td><td>n/a</td><td><strong>12 findings, 7 real</strong>, including an undeclared user-defined property and a validation error that still called the back end. 2 false alarms (no framework, a decision the reviewer could not see), which led to the decisions file</td></tr>
+    <tr><td>5 Fix</td><td class="ok">Pass</td><td>Both runtime bugs fixed; decisions recorded</td></tr>
+    <tr><td>6 Change</td><td class="ok">Pass</td><td>Programme-code condition, default 'N', guarded output field, dated change comments, both API files, document version raised</td></tr>
+    <tr><td>7 Review the change</td><td>n/a</td><td><strong>4 findings, all real, no false alarms</strong>: document file name not renamed to the new version; API version not raised in either API file; a success example without the new field</td></tr>
+  </tbody>
+</table></div>
+<p>Rehearsal cost: 23.8 Bobcoins for the seven prompts. Costs rise along the chat because each turn carries the whole conversation.</p>
+
+<h3>Three things the earlier runs taught</h3>
+<ul class="tight">
+  <li><strong>Reviews in the same context approve their own work.</strong> Twice a same-context review reported zero findings on code with real defects. The same prompt with a subagent found eight real ones, including a typo in a JSON key that the audit had missed too.</li>
+  <li><strong>A model guesses values it does not have.</strong> The first build put three invented hosts on the bank's real domain into the API and the ESQL, and copied the example requirement id from the rules into a change comment. Rule FW-11 (placeholders only) stopped it in every later run.</li>
+  <li><strong>The Toolkit is the judge, and Bob cannot see it.</strong> Bob's first ACE project compiled with <code>ibmint</code> but would not open in the Toolkit. Bob cannot read the Problems view; the headless Toolkit check gives him the same messages.</li>
+</ul>
+
+<h2 id="rules">Rules that came out of the runs</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Rule</th><th>What it says</th><th>The mistake it stops</th></tr></thead>
+  <tbody>
+    <tr><td><code>FW-07</code></td><td>Change comments take the requirement id, author and date from the prompt; never the example id or the requirement's date; none on a new service</td><td>An example id copied into code; wrong dates</td></tr>
+    <tr><td><code>FW-11</code></td><td>Never invent a value; use <code>TODO_…</code> or a URL on the reserved <code>.invalid</code> domain, and list the placeholders</td><td>Invented hostnames on the client's domain</td></tr>
+    <tr><td><code>FW-12</code></td><td>A project is done when the Toolkit shows no errors: run the Toolkit check and fix what it reports</td><td>Projects that compile but do not open</td></tr>
+    <tr><td><code>FW-13</code></td><td>Record the lead's decisions in <code>docs/decisions.md</code>; reviewers read it</td><td>Reviews reporting deliberate choices as defects</td></tr>
+    <tr><td><code>REQ-03</code></td><td>Read and write only the fields and headers the requirement names, on both sides</td><td>A back-end field read that the requirement never mentions</td></tr>
+    <tr><td><code>API-08</code></td><td>Every status code in the requirement, in both the API Connect and the ACE definitions</td><td>Missing status codes in the ACE definition</td></tr>
+    <tr><td><code>NODE-01..03</code></td><td>HTTP Request URL as a placeholder set at run time; no semicolon after <code>BROKER SCHEMA</code>; no invented message catalog</td><td>"Unset mandatory property"; Toolkit syntax errors; invented catalogs</td></tr>
+    <tr><td><code>DOC-01</code></td><td>The document lives in <code>docs/</code>; every change adds a version row and raises the version in the header and the file name</td><td>Documents stuck at version 1.0</td></tr>
+    <tr><td>Review section</td><td>Review in a fresh subagent; read the decisions; trace every field and value; "standard" is not a source; rerun the Toolkit check</td><td>Reviews that approve their own work</td></tr>
+  </tbody>
+</table></div>
+<p>The full rules file is in <a href="RULES/integration-standards.md">RULES/integration-standards.md</a>.</p>
+
+<h2 id="running">Running it</h2>
+<ol class="flow">
+  <li>Install IBM Bob Shell and ACE 13. Open the ACE Toolkit on the Bob workspace.</li>
+  <li>In the Toolkit: Settings &gt; Terminal &gt; Local Terminal &gt; Add an entry "IBM Bob Shell" that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a>, with the Eclipse workspace as the initial working directory.</li>
+  <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the seven prompts in one chat.</li>
+  <li>Approve read-only checks for the task when Bob asks; approve deletions once, after reading them.</li>
+  <li>After each step, refresh the project in the Toolkit and look at the Problems view.</li>
+</ol>
+<p>Each use case also has its own page in this repository: <a href="use-case-1-create-service/">use case 1</a>, <a href="use-case-3-interface-document/">use case 3</a>, <a href="use-case-6-review/">use case 6</a>, <a href="use-case-2-change/">use case 2</a>.</p>
+
+<footer>IBM Client Engineering · pilot material for IBM Bob with IBM App Connect Enterprise and IBM API Connect · October 2026</footer>
+</main>
+</body>
+</html>
