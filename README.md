@@ -10,10 +10,10 @@ Page: [index.html](index.html) (GitHub Pages).
 
 | # | Use case | What Bob does | Prompts | Clean rehearsal, 5 Oct 2026 |
 |---|---|---|---|---|
-| **1** | [Create a service](use-case-1-create-service/) | Plans the service, asks what the requirement leaves open, builds the API Connect API and product and the ACE REST API project, and runs the Toolkit check until it passes | 2 | Toolkit check passed first time; all fields and status codes; no invented values · 6.3 Bobcoins |
-| **3** | [Document it](use-case-3-interface-document/) | Writes the Interface Definition Document in the team's template from the code as built | 1 | All sections and fields; matches the code · 0.9 Bobcoins |
-| **6** | [Review it](use-case-6-review/) | Reviews in a fresh-context subagent against the requirement and the rules; a person accepts findings; Bob fixes them | 2 (+1 after the change) | 12 findings, 7 real, incl. 2 runtime bugs the Toolkit check passed · 10.0 Bobcoins with fixes |
-| **2** | [Change it](use-case-2-change/) | Applies a change requirement: new fields with conditions and defaults, dated change comments, both API definitions, the document's version | 1 | All gates passed · 6.7 Bobcoins |
+| **1** | [Create a service](use-case-1-create-service/) | Plans the service, asks what the requirement leaves open, builds the API Connect API and product and the ACE REST API project, and runs the Toolkit check until it passes | Prompts 1 and 2 | Toolkit check passed first time; all fields and status codes; open values left as marked placeholders · 6.3 Bobcoins |
+| **3** | [Document it](use-case-3-interface-document/) | Writes the Interface Definition Document in the team's template from the code as built | Prompt 3 | All sections and fields; matches the code · 0.9 Bobcoins |
+| **6** | [Review it](use-case-6-review/) | Reviews in a fresh-context subagent against the requirement and the rules; a person accepts findings; Bob fixes them | Prompts 4 and 5 (review, then fix), and prompt 7 (review the change after use case 2) | 7 changes accepted and made, incl. 2 runtime fixes · 10.0 Bobcoins with fixes |
+| **2** | [Change it](use-case-2-change/) | Applies a change requirement: new fields with conditions and defaults, dated change comments, both API definitions, the document's version | Prompt 6 | All gates passed · 6.7 Bobcoins |
 
 The numbers follow the team's list of use cases. Use cases 4 (troubleshooting) and 5 (root-cause analysis) were parked for a later phase. Total for the rehearsal: 23.8 Bobcoins.
 
