@@ -12,7 +12,7 @@ The team's IDD template: sign-off, version history, logical view, security, head
 
 | # | Prompt | What Bob does |
 |---|---|---|
-| 3 | [Write the Interface Definition Document](prompts/03-interface-document.md) | Writes a Word file in the team's template with Bob's built-in Office tools (since 6 October; the rehearsal used a Markdown copy). Fills every section from the code: processing logic as coded, every field, every error code with its HTTP status, a Mermaid diagram of where the service sits, and a first version-history row dated with the date in the prompt |
+| 3 | [Write the Interface Definition Document](prompts/03-interface-document.md) | Writes the document in Markdown from the template's `.md` copy and converts it to the Word file with `tools/md_to_docx.py` (rule IBM-10, since 7 October; editing the Word template directly proved slow and costly in a colleague's test). Fills every section from the code: processing logic as coded, every field, every error code with its HTTP status, a diagram of where the service sits, and a first version-history row dated with the date in the prompt |
 
 ## What the Rehearsal Showed
 

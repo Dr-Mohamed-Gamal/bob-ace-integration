@@ -17,6 +17,22 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
+
+
+def count_compiled_flows(bar):
+    """Count compiled flows (.cmf) in the BAR, including inside nested application archives."""
+    count = 0
+    with zipfile.ZipFile(bar) as z:
+        for name in z.namelist():
+            if name.endswith(".cmf"):
+                count += 1
+            elif name.endswith((".appzip", ".libzip", ".shlibzip", ".zip")):
+                inner = os.path.join(os.path.dirname(bar), "inner-" + os.path.basename(name))
+                with open(inner, "wb") as f:
+                    f.write(z.read(name))
+                count += count_compiled_flows(inner)
+    return count
 
 
 def find_mqsicreatebar():
@@ -62,7 +78,13 @@ def main():
         run = subprocess.run(cmd, cwd=workspace, capture_output=True, text=True, errors="replace")
         log = run.stdout + run.stderr
         if run.returncode == 0 and os.path.isfile(bar):
-            print(f"TOOLKIT CHECK: PASS (0 errors) - projects: {' '.join(apps)}")
+            flows = count_compiled_flows(bar)
+            if flows == 0:
+                print(f"TOOLKIT CHECK: FAIL - projects: {' '.join(apps)}")
+                print("  The BAR contains no compiled flows: the Toolkit did not recognise the project as an ACE"
+                      " project. Compare .project, the descriptor and the flow files with the ace-flowpilot examples.")
+                return 1
+            print(f"TOOLKIT CHECK: PASS (0 errors, {flows} compiled flows) - projects: {' '.join(apps)}")
             return 0
         print(f"TOOLKIT CHECK: FAIL - projects: {' '.join(apps)}")
         problems = re.findall(r"Problem \d+:.*", log)

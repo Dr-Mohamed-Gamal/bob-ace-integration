@@ -9,7 +9,7 @@ Prompts that review the service against the requirement and the team's standards
 | # | Prompt | What Bob does |
 |---|---|---|
 | 4 | [Review in a fresh context](prompts/04-review.md) | Starts a subagent that never saw the build. It reads `docs/decisions.md`, re-reads every file, maps every requirement row to a code line, traces every literal value to the requirement, the prompt or the rules, compares status and error codes, reruns the Toolkit check, and reports each finding as rule id, file and line, what is wrong, the fix. Changes no file |
-| 5 | [Fix the accepted findings](prompts/05-fix-accepted-findings.md) | Fixes the findings a person accepted, records the decisions on the others, reruns the Toolkit check and updates the document |
+| 5 | [Fix the accepted findings](prompts/05-fix-accepted-findings.md) | Fixes the findings a person accepted, records the decisions on the others, reruns both checks and updates the document |
 | 7 | [Review the change](prompts/07-review-change.md) | The same review, on the change of use case 2 |
 
 ## What the Runs Showed

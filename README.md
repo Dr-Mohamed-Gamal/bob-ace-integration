@@ -22,9 +22,11 @@ The numbers follow the team's list of use cases. Use cases 4 (troubleshooting) a
 | Part | What it does |
 |---|---|
 | **The bank's standards** in `.bob/rules/` ([RULES/client-standards.md](RULES/client-standards.md)) | 79 numbered rules: how to work, requirement conformance, ESQL, API Connect, the Interface Definition Document, and how to review. Every review finding cites a rule id |
-| **IBM's working method** in `.bob/rules/` ([RULES/ibm-working-method.md](RULES/ibm-working-method.md)) | 12 rules, IBM-01 to IBM-12: placeholders instead of invented values, the Toolkit check, the decisions file, the Interface Definition Document as Word, how a review is run. Kept apart from the bank's standards so the bank can see which is which |
+| **IBM's working method** in `.bob/rules/` ([RULES/ibm-working-method.md](RULES/ibm-working-method.md)) | 23 rules, IBM-01 to IBM-23: placeholders instead of invented values, the two checks, the decisions file, the Interface Definition Document, how a review is run, and the ACE run-time details each check confirmed (compute mode, user-defined properties, parser domain, error routing, content type, exception numbers). Kept apart from the bank's standards so the bank can see which is which |
 | **IBM's ACE skills** | The ACE Toolkit adds IBM's open-source `ace-flowpilot` skills to the workspace. They give Bob the exact project files, node types and ESQL patterns ACE expects |
-| **A Toolkit check** ([tools/toolkit_check.py](tools/toolkit_check.py)) | Runs the Toolkit's own build and validators headless (`mqsicreatebar -cleanBuild` on a copy) and prints the Toolkit's problem markers. Bob runs it before calling an ACE project done (rule IBM-04) |
+| **A Toolkit check** ([tools/toolkit_check.py](tools/toolkit_check.py)) | Runs the Toolkit's own build and validators headless (`mqsicreatebar -cleanBuild` on a copy) and prints the Toolkit's problem markers. It also fails when the BAR holds no compiled flow, so a project the Toolkit does not recognise cannot pass |
+| **A runtime check** ([tools/runtime_check.py](tools/runtime_check.py)) | Deploys the REST API to a local, throw-away integration server and calls it with the requirement's cases against a mock back end: validation errors, success mapping, back-end error, timeout, and the change's conditions and defaults. It sets the back-end URL as a deploy-time property, so it also proves the URL can be configured. Bob runs both checks before calling an ACE project done (rule IBM-04) |
+| **The Interface Definition Document in Markdown** ([tools/md_to_docx.py](tools/md_to_docx.py)) | Bob writes the document in Markdown from the template's `.md` copy; the converter makes the Word file next to it (rule IBM-10) |
 | **A decisions file** | Bob records the lead's decisions in `docs/decisions.md` (rule IBM-09), so later steps and reviewers can see them |
 | **Fresh-context reviews** | The review prompt asks for a subagent: a second Bob that never saw the build, reads the files as they are and reruns the checks |
 
@@ -36,9 +38,9 @@ Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [to
 |---|---|---|
 | 1 | 1 · plan | Read `requirements/API-SRS-Project_MOCK_Loyalty_Rewards-V1.0.md`. Tell me how you will build LoyaltyPointsInquiryAPI: which layer each part goes in, the files you will create, and any question you have. Do not create anything yet. |
 | 2 | 1 · build | The decisions block in [use case 1](use-case-1-create-service/prompts/02-answer-and-build.md), ending "Go ahead and build it as planned." |
-| 3 | 3 · document | Write the Interface Definition Document for the service you just built, as a Word file. Follow `templates/EAI_Interface_Definition_Document_TEMPLATE.docx`. Today is `<date>`. |
+| 3 | 3 · document | Write the Interface Definition Document for the service you just built, following IBM-10. Today is `<date>`. |
 | 4 | 6 · review | Review what you built against the standards, using a subagent with a fresh context. Do not change any file. |
-| 5 | 6 · fix | Fix findings `<accepted>`. `<others>` are by design: `<why>`. Record these decisions and the ones I gave you before in `docs/decisions.md`. Then run the Toolkit check, and update the Interface Definition Document where the behaviour it describes has changed. |
+| 5 | 6 · fix | Fix findings `<accepted>`. `<others>` are by design: `<why>`. Record these decisions in `docs/decisions.md`. Then run both checks in IBM-04, and update the Interface Definition Document where the behaviour it describes has changed. |
 | 6 | 2 · change | Read `requirements/API_SRS-MOCK_Loyalty_Partner_Redemption_Changes_V1.0.md` and apply the change for LoyaltyPointsInquiryAPI. The requirement id is URF-90001, the author is `<name>` and the date is `<date>`. |
 | 7 | 6 · review the change | Review the URF-90001 change against the change SRS and the standards, using a subagent with a fresh context. Do not change any file. |
 
@@ -51,9 +53,46 @@ Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [to
 - **A rule can cause a defect.** A rule to move procedures to schema level, without saying they then cannot touch the message trees, led Bob to create seven Toolkit warnings. Both affected rules were corrected after the rehearsal.
 - **Tell Bob the date**, or it copies the requirement's date into change comments and documents.
 
+## Trial Runs (6–7 October)
+
+After a colleague's review of this kit, the method was tightened and the whole flow was run five more times, the seven prompts in one chat each:
+
+- **Every run passed both checks and the audits**: the Toolkit check, the runtime check with 7 requirement cases after the build and 13 after the change, and versions raised together. Three runs had no review findings at all; in the other two, the change review found a new field missing from an API example, which rule IBM-23 now covers.
+- **A project that builds is not yet a service that works.** Deploying earlier outputs on a local integration server showed issues that neither the build nor a review had shown: a compute mode value, the response parser domain, where errors are caught. The runtime check now runs these cases at every step, and Bob corrects what it reports.
+- **Bob fixes from the checks' output.** When the runtime check failed during a build, Bob read the failing case and corrected the code in the same step.
+- **A whole run takes about 45 minutes and 17–32 Bobcoins.**
+
 ## What Changed in the Rules (6 October)
 
 During the runs each mistake Bob made became a rule, first inside the bank's standards file. On 6 October the additions were split out: the bank's file is back to the version from the scoping session with four corrections (FW-07 example comment, FW-10 REST API project, ESQL-06 correlation names, API-08 status code 404), and IBM's instructions to Bob moved to their own file. The Interface Definition Document went back to Word, the bank's format; the Markdown version used on 5 October was a convenience for checking. Four rules were then adjusted for the bank's real workspace (reuse of existing names, a Toolkit check that also runs on Windows, status codes only on new APIs, FW-10 to be confirmed). Details on the [page](index.html#rules).
+
+## What Changed on 7 October
+
+- **IBM-13 to IBM-17** (from the colleague's review): the exact compute mode for LocalEnvironment changes, reading a user-defined property through an `EXTERNAL` variable, ESQL functions without parentheses, no `Data` wrapper in the payload, and every version raised together. Review checks 6–9 were added to IBM-12.
+- **IBM-18 to IBM-21**, each confirmed on an integration server: the XML parser domain on the HTTP Request node, error routing around the TryCatch node, the JSON content type on replies, and the exception numbers for a back-end timeout. IBM-14 now shows the exact flow XML for the property.
+- **IBM-22** keeps a plan short; **IBM-23** adds a changed field to every example as well as the schema.
+- **IBM-10**: the Interface Definition Document is written in Markdown and converted to Word, instead of edited in Word directly.
+- **The Toolkit check** fails on a BAR with no compiled flow; **the runtime check** is new.
+- **A `.bobignore` file** in the workspace with the two lines `.github/` and `.metadata/` keeps Bob from reading the Toolkit's second copy of the skills and its metadata.
+
+## The Colleague's Kit: Issues Found and How This Version Handles Them
+
+The colleague's kit was run the same way: its sample output deployed on a local integration server and called with the requirement's cases. It started and passed 11 of 13 cases; with the four fixes below it passed 13 of 13. Every item was checked on the integration server or the Toolkit, not only by reading.
+
+| Found in the colleague's kit | Evidence | In this version |
+|---|---|---|
+| The back-end URL is read through an `EXTERNAL` variable, but the property is not defined on the subflow, so no deploy can change it: every call goes to the placeholder URL | The BAR lists no `LMS_URL` property; a deploy-time override of the HTTP Request node's URL is ignored, because the ESQL sets the placeholder URL | IBM-14 shows the exact flow XML for the property and the override key; the runtime check fails when the property is missing |
+| JSON replies go out with `Content-Type: text/xml`, copied from the back end's reply | 9 of 13 runtime replies | IBM-20; the runtime check tests every reply |
+| A back-end timeout returns EAI-LMS-BRK-999 instead of EAI-LMS-BRK-003: the code looks for BIP3165 and the text `Timeout`, while ACE reports BIP3151 "A timeout occurred…" | The exception list printed on the integration server: BIP3162 › BIP3152 › BIP3151 | IBM-21 with a tested exception-list loop; the runtime check has a timeout case |
+| The decisions file records the BIP3165 check as correct by design, overruling a reviewer who had questioned it | Same evidence as above | A decision about behaviour is checked by the runtime check, not by agreement |
+| An empty optional field (`includeExpiring`) is sent to the back end as an empty value instead of the default `N` | The mock back end received `<Include_Expiring></Include_Expiring>` | Prompt 2 decides it: an empty optional field counts as not present; the runtime check has the case |
+| The published sample output is from the first run, before the kit's final rules | Its document is at version 1.2 while the API is at 1.1.0 | Outputs are judged by the checks at each step, not by a stored sample |
+| The setup copies an MCP configuration with a fixed local port (`60164`) into every workspace | The port belongs to one machine's Bob session; another machine uses a different one | Not adopted: Bob writes its own MCP configuration |
+| The setup script needs zsh and looks for the skills in `.bob/ace-flowpilot`; the Toolkit 13.0.9 installs them in `.bob/skills/ace-flowpilot` and `.github/skills/ace-flowpilot`, so the script downloads a second copy from GitHub | Checked on a new Toolkit workspace | Not adopted: the Toolkit installs the skills, and `.bobignore` hides the second copy from Bob |
+| A new chat for each step after the build, because Bob stopped replying at about 168k tokens | The stall followed a step that filled the chat with tool output; the one-chat rehearsal reached 202k tokens and finished, and the five trial runs used one chat each | Kept one chat; IBM-10 removed the step that filled the chat |
+| After the change, the API is at 1.1.0 while the product stays at 1.0.0 with `CHANGETYPE=NEW` | Product file and properties | An open question for the bank: how its pipeline expects a changed API |
+
+The colleague's points about this kit were right on four counts, and those changes are listed under "What Changed on 7 October": the empty-BAR guard, the Markdown route for the document, IBM-13 to IBM-17, and review checks 6–9.
 
 ## Repository
 
@@ -63,4 +102,4 @@ During the runs each mistake Bob made became a rule, first inside the bank's sta
 | [use-case-*/](use-case-1-create-service/) | One folder per use case: README and the prompts |
 | [RULES/client-standards.md](RULES/client-standards.md) | The bank's standards, with four corrections from the runs |
 | [RULES/ibm-working-method.md](RULES/ibm-working-method.md) | IBM's working method for Bob |
-| [tools/](tools/) | The headless Toolkit check and the Bob Shell launcher for the Toolkit terminal |
+| [tools/](tools/) | The Toolkit check, the runtime check, the Markdown-to-Word converter and the Bob Shell launcher for the Toolkit terminal |

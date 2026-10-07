@@ -13,7 +13,7 @@ A requirement document (SRS) for two new APIs of an invented loyalty-points proj
 | # | Prompt | What Bob does |
 |---|---|---|
 | 1 | [Plan the service](prompts/01-plan.md) | Reads the requirement and the rules, picks the layers from the scope table, lists every file and placeholder, and asks what the requirement leaves open. Writes nothing |
-| 2 | [Answer and build](prompts/02-answer-and-build.md) | Gets one block of decisions, builds the API Connect API, product and pipeline properties and the ACE REST API project (OpenAPI document, generated main flow, one subflow per operation, ESQL), runs the Toolkit check, fixes what it reports and reruns it |
+| 2 | [Answer and build](prompts/02-answer-and-build.md) | Gets one block of decisions, builds the API Connect API, product and pipeline properties and the ACE REST API project (OpenAPI document, generated main flow, one subflow per operation, ESQL), runs the Toolkit check and the runtime check, fixes what they report and reruns them until both pass |
 
 ## What It Produces
 
