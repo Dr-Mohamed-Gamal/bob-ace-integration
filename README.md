@@ -30,7 +30,7 @@ The numbers follow the team's list of use cases. Use cases 4 (troubleshooting) a
 | **A decisions file** | Bob records the lead's decisions in `docs/decisions.md` (rule IBM-09), so later steps and reviewers can see them |
 | **Fresh-context reviews** | The review prompt asks for a subagent: a second Bob that never saw the build, reads the files as they are and reruns the checks |
 
-Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [tools/bob-shell-toolkit.sh](tools/bob-shell-toolkit.sh).
+Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [tools/bob-shell-toolkit.sh](tools/bob-shell-toolkit.sh). The script also sets the terminal size, which the Toolkit's terminal does not report to the programs it runs.
 
 ## The Seven Prompts
 
@@ -58,6 +58,7 @@ Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [to
 After a colleague's review of this kit, the method was tightened and the whole flow was run five more times, the seven prompts in one chat each:
 
 - **Every run passed both checks and the audits**: the Toolkit check, the runtime check with 7 requirement cases after the build and 13 after the change, and versions raised together. Three runs had no review findings at all; in the other two, the change review found a new field missing from an API example, which rule IBM-23 now covers.
+- **One more run inside the ACE Toolkit's own terminal (7 October)**, from a new Toolkit workspace with this repository's rules, tools and prompts, every prompt sent in the "IBM Bob Shell" terminal. Both checks passed at every step (7 of 7 cases after the build, 13 of 13 after the change), and after Project > Clean the Toolkit's Problems view showed no errors and no warnings. The review of the build found two real gaps, the HTTP Request node's failure terminal (IBM-19) and the position of `x-ibm-configuration` in the API Connect file (INV-01), which Bob fixed in prompt 5. The change review found one API Connect request example without the new fields. 22.1 Bobcoins, 53 minutes.
 - **A project that builds is not yet a service that works.** Deploying earlier outputs on a local integration server showed issues that neither the build nor a review had shown: a compute mode value, the response parser domain, where errors are caught. The runtime check now runs these cases at every step, and Bob corrects what it reports.
 - **Bob fixes from the checks' output.** When the runtime check failed during a build, Bob read the failing case and corrected the code in the same step.
 - **A whole run takes about 45 minutes and 17–32 Bobcoins.**
@@ -74,6 +75,7 @@ During the runs each mistake Bob made became a rule, first inside the bank's sta
 - **IBM-10**: the Interface Definition Document is written in Markdown and converted to Word, instead of edited in Word directly.
 - **The Toolkit check** fails on a BAR with no compiled flow; **the runtime check** is new.
 - **A `.bobignore` file** in the workspace with the two lines `.github/` and `.metadata/` keeps Bob from reading the Toolkit's second copy of the skills and its metadata.
+- **The Bob Shell launcher** sets the terminal size (`COLUMNS`, `LINES`), which the Toolkit's terminal does not report. With it, the whole flow runs in the Toolkit's terminal.
 
 ## The Colleague's Kit: Issues Found and How This Version Handles Them
 

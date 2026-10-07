@@ -196,7 +196,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 <p>Rehearsal cost: 23.8 Bobcoins for the seven prompts. Costs rise along the chat because each turn carries the whole conversation.</p>
 
 <h3>Trial runs, 6–7 October</h3>
-<p>After a colleague's review of this kit, the method was tightened (rules IBM-13 to IBM-23, the runtime check, the document in Markdown) and the whole flow ran five more times, the seven prompts in one chat each. Every step was checked by the Toolkit check, the runtime check (7 requirement cases after the build, 13 after the change) and the audit scripts.</p>
+<p>After a colleague's review of this kit, the method was tightened (rules IBM-13 to IBM-23, the runtime check, the document in Markdown) and the whole flow ran six more times, the seven prompts in one chat each; run 6 ran inside the ACE Toolkit's own terminal, from a new Toolkit workspace. Every step was checked by the Toolkit check, the runtime check (7 requirement cases after the build, 13 after the change) and the audit scripts.</p>
 <div class="table-wrap"><table>
   <thead><tr><th>Run</th><th>Checks</th><th>Reviews</th><th>Bobcoins</th></tr></thead>
   <tbody>
@@ -205,6 +205,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
     <tr><td>3</td><td class="ok">All passed</td><td>No findings on the change</td><td>21.7</td></tr>
     <tr><td>4</td><td class="ok">All passed</td><td>New fields missing from three API examples; rule IBM-23 added</td><td>31.7</td></tr>
     <tr><td>5</td><td class="ok">All passed</td><td>No findings, with IBM-23 in place</td><td>18.8</td></tr>
+    <tr><td>6 · in the Toolkit terminal</td><td class="ok">All passed; Problems view: no errors, no warnings</td><td>Build: failure terminal and <code>x-ibm-configuration</code> position, both fixed. Change: one API Connect request example without the new fields</td><td>22.1</td></tr>
   </tbody>
 </table></div>
 <p>A whole run takes about 45 minutes. When the runtime check failed during a build, Bob read the failing case and corrected the code in the same step. The review of the colleague's kit, and how this version handles each point, is in the <a href="README.md">README</a>; in short, its sample output passed 11 of 13 requirement cases on an integration server, and the four fixes that bring it to 13 of 13 are now rules here.</p>
@@ -265,7 +266,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 <h2 id="running">Running it</h2>
 <ol class="flow">
   <li>Install IBM Bob Shell and ACE 13. Open the ACE Toolkit on the Bob workspace.</li>
-  <li>In the Toolkit: Settings &gt; Terminal &gt; Local Terminal &gt; Add an entry "IBM Bob Shell" that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a>, with the Eclipse workspace as the initial working directory.</li>
+  <li>In the Toolkit: Settings &gt; Terminal &gt; Local Terminal &gt; Add an entry "IBM Bob Shell" that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a>, with the Eclipse workspace as the initial working directory. The script adds Homebrew to the path, reads the API key file and sets the terminal size, which the Toolkit's terminal does not report.</li>
   <li>Add a <code>.bobignore</code> file to the workspace with the two lines <code>.github/</code> and <code>.metadata/</code>, so Bob does not read the Toolkit's second copy of the skills or its metadata.</li>
   <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the seven prompts in one chat. Paste each prompt as one line: Enter sends the message.</li>
   <li>Approve read-only checks for the task when Bob asks; approve deletions once, after reading them.</li>
