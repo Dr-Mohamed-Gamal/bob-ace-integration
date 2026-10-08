@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>IBM Bob on App Connect Enterprise</title>
-<meta name="description" content="Seven prompts that take an integration requirement to a built, documented, reviewed and changed REST service on IBM App Connect Enterprise and API Connect, with IBM Bob Shell in the ACE Toolkit.">
+<meta name="description" content="Six prompts that take an integration requirement to a built, documented, reviewed and changed REST service on IBM App Connect Enterprise and API Connect, with IBM Bob Shell in the ACE Toolkit.">
 <style>
 /* Layout: one reading column, prompt blocks as the spine of the page; same system as the Netcool pilot page */
 :root {
@@ -72,7 +72,7 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
 <main>
 <header>
   <h1>IBM Bob on App Connect Enterprise</h1>
-  <p class="lead">Seven prompts that take an integration requirement to a built, documented, reviewed and changed REST service on IBM App Connect Enterprise (ACE) and IBM API Connect, with IBM Bob Shell running inside the ACE Toolkit.</p>
+  <p class="lead">Six prompts that take, with nothing asked of the developer, an integration requirement to a built, documented, reviewed and changed REST service on IBM App Connect Enterprise (ACE) and IBM API Connect, with IBM Bob Shell running inside the ACE Toolkit.</p>
   <p class="meta">Pilot use cases for a bank's integration team · dry runs and a clean rehearsal on 5 October 2026 · ACE 13.0.9, Bob Shell 2.0.5</p>
 </header>
 
@@ -106,42 +106,24 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
   <li><strong>Two rules files</strong> in <code>.bob/rules/</code>, read on every turn: the bank's standards, and IBM's working method for Bob, kept apart so the bank can see which is which. No custom mode is used.</li>
   <li><strong>IBM's ACE skills.</strong> The Toolkit adds IBM's open-source <code>ace-flowpilot</code> skills to the workspace when it opens it. They teach Bob the exact project files, node types and ESQL patterns ACE expects. Without them, the first dry run produced ACE files the Toolkit could not open.</li>
   <li><strong>A Toolkit check Bob runs himself.</strong> <code>tools/toolkit_check.py</code> runs the Toolkit's own build and validators headless (<code>mqsicreatebar -cleanBuild</code> on a copy of the project) and prints the Toolkit's problem markers. It reproduces the Toolkit's Problems view exactly, so Bob can see what the Toolkit would show, and it fails when the BAR holds no compiled flow, so a project the Toolkit does not recognise cannot pass.</li>
-  <li><strong>A runtime check Bob runs himself.</strong> <code>tools/runtime_check.py</code> deploys the REST API to a local, throw-away integration server and calls it with the requirement's cases against a mock back end: validation errors, success mapping, back-end error, timeout, and the change's conditions and defaults. A project that builds is not yet a service that works; this check shows the difference, and Bob corrects what it reports.</li>
+  <li><strong>A runtime check Bob runs himself.</strong> <code>tools/runtime_check.py</code> deploys the REST API to a local, throw-away integration server and calls it with the requirement's cases against a mock back end: validation errors, success mapping, back-end error, timeout, and the change's conditions and defaults. A project that builds is not yet a service that works; this check shows the difference, and Bob corrects what it reports. Since 8 October it also takes a cases file Bob writes from the requirement (<code>--cases</code>, rule IBM-26), so the cases are not hard-coded for one service, and in that mode the run fails if the integration server log shows an error.</li>
   <li><strong>A decisions file.</strong> Bob records every decision the lead gives him in <code>docs/decisions.md</code>. Later steps and reviewers read it.</li>
   <li><strong>Reviews in a fresh context.</strong> The review prompt asks Bob to use a subagent: a second Bob with its own context that never saw the build, reads every file as it is, and reruns the checks.</li>
 </ul>
 
-<h2 id="prompts">The seven prompts</h2>
-<p>As sent in the clean rehearsal. <code>&lt;date&gt;</code> is today's date.</p>
+<h2 id="prompts">The six prompts</h2>
+<p>As sent in the 8 October run (prompts 2 to 6 are unchanged since the 5 October rehearsal). <code>&lt;date&gt;</code> is today's date.</p>
 
 <div class="prompt">
-  <div class="head"><span class="num">1</span><strong>Plan the service</strong><span class="tag">Use case 1 · 0.65 Bobcoins</span></div>
+  <div class="head"><span class="num">1</span><strong>Plan and build</strong><span class="tag">Use case 1 · 4.5 Bobcoins</span></div>
   <div class="body">
-<pre>Read `requirements/API-SRS-Project_MOCK_Loyalty_Rewards-V1.0.md`. Tell me how you will build LoyaltyPointsInquiryAPI: which layer each part goes in, the files you will create, and any question you have. Do not create anything yet.</pre>
-    <div class="why">Nothing is written before a person has seen the plan. Bob decides the layers from the requirement's scope table, lists every file, lists the placeholders it will need, and asks what the requirement leaves open. In two runs it asked five and six questions, and the questions differed.</div>
+<pre>Read `requirements/API-SRS-Project_MOCK_Loyalty_Rewards-V1.0.md`. Plan and build LoyaltyPointsInquiryAPI: first say which layer each part goes in, the files you will create and the decisions you took (IBM-24, IBM-25), then build it. Do not ask me anything: every value comes from the SRS, the rules and the workspace. Author: &lt;author&gt;. Today is &lt;date&gt;. Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition Document yet. Record the decisions in `docs/decisions.md`. Run both checks in IBM-04 until they pass.</pre>
+    <div class="why">Bob opens its reply with the plan and the decisions it took, then builds the API Connect API, product and pipeline properties and the ACE REST API project (OpenAPI document, generated main flow, one subflow per operation, ESQL), runs the Toolkit check and the runtime check, and fixes what they report until both pass. Nothing is asked of the developer: what the requirement leaves open is decided from rule IBM-24 (the defaults the lead agreed in the earlier runs) and recorded in <code>docs/decisions.md</code> under rule IBM-25. Until 7 October this was two prompts, a plan ending in Bob's questions and a decisions block from the lead; the block became rule IBM-24. On 8 October the single prompt asked nothing, listed nine decisions and passed both checks on the first pass.</div>
   </div>
 </div>
 
 <div class="prompt">
-  <div class="head"><span class="num">2</span><strong>Answer and build</strong><span class="tag">Use case 1 · 3.6–7.7 Bobcoins</span></div>
-  <div class="body">
-<pre>Answers and decisions:
-- Framework: there is no framework in this workspace. Handle errors inline in the ESQL, write no new libraries, mark each plug-in point with `TODO framework`, and leave out CATALOG on THROW USER EXCEPTION.
-- Nearest service: follow skills/shared/ExampleAPI in the ace-flowpilot skill (same project files, natures and structure). No broker schema: files in the project root, like ExampleAPI.
-- LMS URL: the user-defined property is `LMS_URL`, default http://lms.todo.invalid/PointsInquiry. Plain HTTP for now, no TLS profile.
-- Paths: base path `/loyalty/v1` in both the ACE REST API and API Connect, operation path `/loyalty-points-inquiry`.
-- API Connect: files in `apic/`. The invoke calls ACE (not LMS) through the catalog property `omw-loyalty-url`. One product `LoyaltyRewards`, containing only LoyaltyPointsInquiryAPI for now; the redemption API joins it later. Pipeline values and org, gateway and catalog names as `TODO_` placeholders.
-- Author: &lt;author&gt;. Today is &lt;date&gt;. A new service has no change comments.
-- Headers: send no extra headers or credentials to LMS; the SRS names none. Generate X-TRACKING-ID as a UUID in OMW and return it as a response header.
-- Validation: reject a missing mandatory field with EAI-LMS-BRK-001 and an invalid programCode with EAI-LMS-BRK-002, both HTTP 400, without calling LMS. An optional field sent as an empty string counts as not present.
-- Subflow layout: one Compute node per step (request mapping, response mapping, error handling), each with its own ESQL module (ESQL-01), and an HTTP Request node that calls LMS.
-Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition Document yet. Record these decisions in `docs/decisions.md`. Run both checks in IBM-04 until they pass. Go ahead and build it as planned.</pre>
-    <div class="why">One block of decisions answers every question Bob asked in the trial runs, so the prompt does not need rewriting for each run. In the Bob Shell terminal, paste it as one line: Enter sends the message. Bob builds the API Connect API, product and pipeline properties, and an ACE REST API project (OpenAPI document, generated main flow, one subflow per operation, ESQL), then runs the Toolkit check and the runtime check, fixes what they report and runs them again until both pass.</div>
-  </div>
-</div>
-
-<div class="prompt">
-  <div class="head"><span class="num">3</span><strong>Write the Interface Definition Document</strong><span class="tag">Use case 3 · 0.7–1.4 Bobcoins</span></div>
+  <div class="head"><span class="num">2</span><strong>Write the Interface Definition Document</strong><span class="tag">Use case 3 · 0.7–1.4 Bobcoins</span></div>
   <div class="body">
 <pre>Write the Interface Definition Document for the service you just built, following IBM-10. Today is &lt;date&gt;.</pre>
     <div class="why">The document describes the code, not the requirement: processing logic, every input and output field, every error code with its HTTP status, and a diagram of where the service sits. The date matters: without it Bob copied the requirement's date into the document. Bob writes the document in Markdown from the template's <code>.md</code> copy, then <code>tools/md_to_docx.py</code> makes the Word file next to it (rule IBM-10). Editing the Word template directly proved slow and costly in a colleague's test.</div>
@@ -149,7 +131,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 </div>
 
 <div class="prompt">
-  <div class="head"><span class="num">4</span><strong>Review in a fresh context</strong><span class="tag">Use case 6 · 2.4–5.9 Bobcoins</span></div>
+  <div class="head"><span class="num">3</span><strong>Review in a fresh context</strong><span class="tag">Use case 6 · 2.4–5.9 Bobcoins</span></div>
   <div class="body">
 <pre>Review what you built against the standards, using a subagent with a fresh context. Do not change any file.</pre>
     <div class="why">The reviewer re-reads every file, maps every requirement row to a code line, traces every literal value to the requirement, the prompt or the rules, compares status and error codes, and reruns both checks. Each finding is one table row: rule id, file and line, what is wrong, the fix. In the rehearsal it found two runtime bugs that the Toolkit check and the audits had passed.</div>
@@ -157,7 +139,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 </div>
 
 <div class="prompt">
-  <div class="head"><span class="num">5</span><strong>Fix the accepted findings</strong><span class="tag">Use case 6 · 0.5–5.3 Bobcoins</span></div>
+  <div class="head"><span class="num">4</span><strong>Fix the accepted findings</strong><span class="tag">Use case 6 · 0.5–5.3 Bobcoins</span></div>
   <div class="body">
 <pre>Fix F-1 and F-2 as proposed. F-3 is by design: BuildValidationError writes OutputRoot, so under ESQL-06 it stays inside the module. Record these decisions in `docs/decisions.md`. Then run both checks in IBM-04, and update the Interface Definition Document where the behaviour it describes has changed.</pre>
     <div class="why">This is the human step of use case 6: a person reads the review and decides which findings to accept. The finding numbers change from run to run; the shape of the prompt does not. This one is as sent in a trial run; when a review finds nothing, the prompt only records that. Recording the decisions stops the next review from reporting them again.</div>
@@ -165,7 +147,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 </div>
 
 <div class="prompt">
-  <div class="head"><span class="num">6</span><strong>Apply the change</strong><span class="tag">Use case 2 · 6–9 Bobcoins</span></div>
+  <div class="head"><span class="num">5</span><strong>Apply the change</strong><span class="tag">Use case 2 · 6–9 Bobcoins</span></div>
   <div class="body">
 <pre>Read `requirements/API_SRS-MOCK_Loyalty_Partner_Redemption_Changes_V1.0.md` and apply the change for LoyaltyPointsInquiryAPI. The requirement id is URF-90001, the author is Mohamed Gamal and the date is &lt;date&gt;.</pre>
     <div class="why">Bob maps the three new fields with their conditions, adds a change comment with the id, author and date at each change, updates both API definitions and the document's version history, and does not touch or invent the second API, which is not in the workspace.</div>
@@ -173,7 +155,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 </div>
 
 <div class="prompt">
-  <div class="head"><span class="num">7</span><strong>Review the change</strong><span class="tag">Use case 6 · 1.9–3.4 Bobcoins</span></div>
+  <div class="head"><span class="num">6</span><strong>Review the change</strong><span class="tag">Use case 6 · 1.9–3.4 Bobcoins</span></div>
   <div class="body">
 <pre>Review the URF-90001 change against the change SRS and the standards, using a subagent with a fresh context. Do not change any file.</pre>
     <div class="why">A second fresh review, on the change only. In the rehearsal it found four real gaps and no false alarms, because it read the decisions file first.</div>
@@ -193,7 +175,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
     <tr><td>7 Review the change</td><td>n/a</td><td><strong>4 findings, all real, no false alarms</strong>: document file name not renamed to the new version; API version not raised in either API file; a success example without the new field</td></tr>
   </tbody>
 </table></div>
-<p>Rehearsal cost: 23.8 Bobcoins for the seven prompts. Costs rise along the chat because each turn carries the whole conversation.</p>
+<p>Rehearsal cost: 23.8 Bobcoins for the seven prompts of the time. Costs rise along the chat because each turn carries the whole conversation.</p>
 
 <h3>Trial runs, 6–7 October</h3>
 <p>After a colleague's review of this kit, the method was tightened (rules IBM-13 to IBM-23, the runtime check, the document in Markdown) and the whole flow ran six more times, the seven prompts in one chat each; run 6 ran inside the ACE Toolkit's own terminal, from a new Toolkit workspace. Every step was checked by the Toolkit check, the runtime check (7 requirement cases after the build, 13 after the change) and the audit scripts.</p>
@@ -219,6 +201,9 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
   <li><strong>A rule can cause a defect.</strong> A rule told Bob to move reusable procedures to schema level without saying such a procedure cannot touch the message trees. Bob followed it and created seven Toolkit warnings. Rules need the same review as code.</li>
 </ul>
 
+<h3>Six prompts, no questions, 8 October</h3>
+<p>The team asked that the developer supplies no answers and that Bob tests the flows itself with data from the requirement. Prompt 2's decisions block became rule IBM-24, rule IBM-25 tells Bob to decide and record instead of asking, and prompt 1 now plans and builds in one go; prompts 2 to 6 are unchanged. Rule IBM-26 and the runtime check's cases-file mode cover the testing. One headless run of the six prompts in one chat: no questions, nine decisions recorded, every check green at every step (7 of 7 cases after the build, 13 of 13 after the change), three real findings in the first review and none in the change review. 23.4 Bobcoins. The only error was Bob's service dropping the first review request; the same prompt sent again completed. Rule IBM-26 was then tried in a fresh chat: Bob wrote 15 cases from the two requirement documents and passed 15 of 15 with a clean server log on its first run, 0.9 Bobcoins.</p>
+
 <h2 id="rules">The two rules files, and what changed</h2>
 <p>During the runs, each mistake Bob made became a rule. On 5 October those rules went into the bank's standards file, which mixed the bank's standards with IBM's instructions to Bob. On 6 October they were split into two files, so the bank's file holds only its standards and IBM's method is labelled as IBM's. Bob reads both, so it works the same way.</p>
 
@@ -235,7 +220,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
 </table></div>
 
 <h3>IBM's working method for Bob</h3>
-<p><a href="RULES/ibm-working-method.md">RULES/ibm-working-method.md</a> · 23 rules. Each one answers a mistake from the runs.</p>
+<p><a href="RULES/ibm-working-method.md">RULES/ibm-working-method.md</a> · 26 rules. Each one answers a mistake from the runs.</p>
 <div class="table-wrap"><table>
   <thead><tr><th>Rule</th><th>What it says</th><th>The mistake it stops</th></tr></thead>
   <tbody>
@@ -251,6 +236,8 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
     <tr><td><code>IBM-15</code> to <code>IBM-17</code></td><td>ESQL functions without parentheses; no <code>Data</code> wrapper in the payload; every version raised together</td><td>A syntax error; a payload shape the channels do not send; versions out of step</td></tr>
     <tr><td><code>IBM-18</code> to <code>IBM-21</code></td><td>The XML parser domain on the HTTP Request node; error routing around the TryCatch node; the JSON content type; the exception numbers for a back-end timeout</td><td>Empty replies; uncaught validation errors; replies marked as XML; timeouts reported as system errors</td></tr>
     <tr><td><code>IBM-22</code>, <code>IBM-23</code></td><td>Keep a plan short; a changed field goes into every example as well as the schema</td><td>A plan that ran out of response length; examples without the new field</td></tr>
+    <tr><td><code>IBM-24</code>, <code>IBM-25</code></td><td>The defaults for what the requirement leaves open (no framework, the example project's layout, the back-end URL property, base path, API Connect product and placeholders, tracking header, validation codes, one Compute node per step); never ask the developer, decide from the requirement, the rules and the workspace, and record each decision</td><td>Five questions per run that the requirement and the rules could already answer, and a decisions block the lead had to paste (since 8 October)</td></tr>
+    <tr><td><code>IBM-26</code></td><td>Write the test cases from the requirement into <code>tests/&lt;project&gt;.cases.json</code> (success path, every error code, every mandatory and restricted field, back-end timeout and error, the change's conditions and defaults) and run the runtime check with them until all pass with a clean server log</td><td>Test cases hard-coded by IBM for one service; a developer running the flows by hand to test them (since 8 October)</td></tr>
   </tbody>
 </table></div>
 <p>Some of the 5 October additions were not needed in the bank's file: the Markdown document was a convenience for checking, and the ACE node notes are product facts, not bank standards. They now sit in IBM's file or were reverted.</p>
@@ -268,7 +255,7 @@ Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition
   <li>Install IBM Bob Shell and ACE 13. Open the ACE Toolkit on the Bob workspace.</li>
   <li>In the Toolkit: Settings &gt; Terminal &gt; Local Terminal &gt; Add an entry "IBM Bob Shell" that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a>, with the Eclipse workspace as the initial working directory. The script adds Homebrew to the path, reads the API key file and sets the terminal size, which the Toolkit's terminal does not report.</li>
   <li>Add a <code>.bobignore</code> file to the workspace with the two lines <code>.github/</code> and <code>.metadata/</code>, so Bob does not read the Toolkit's second copy of the skills or its metadata.</li>
-  <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the seven prompts in one chat. Paste each prompt as one line: Enter sends the message.</li>
+  <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the six prompts in one chat. Paste each prompt as one line: Enter sends the message.</li>
   <li>Approve read-only checks for the task when Bob asks; approve deletions once, after reading them.</li>
   <li>After each step, refresh the project in the Toolkit and look at the Problems view; use Project &gt; Clean if a marker looks out of date.</li>
 </ol>

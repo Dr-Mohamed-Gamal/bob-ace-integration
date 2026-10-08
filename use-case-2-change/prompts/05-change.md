@@ -1,4 +1,4 @@
-# Prompt 6 — Apply the change
+# Prompt 5 — Apply the change
 
 Send after the fixes. Replace <name> and <date>.
 

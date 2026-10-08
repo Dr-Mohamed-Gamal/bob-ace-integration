@@ -1,0 +1,258 @@
+{
+ "path": "/loyalty/v1/loyalty-points-inquiry",
+ "headers": {
+  "ClientId": "c1",
+  "Authorization": "Bearer t",
+  "X-USER-ID": "u1",
+  "X-MSG-ID": "m1",
+  "X-ORG-ID": "AE"
+ },
+ "url_property": "LMS_URL",
+ "reply_headers": [
+  "X-TRACKING-ID"
+ ],
+ "cases": [
+  {
+   "name": "missing mandatory field cifNumber -> 400 EAI-LMS-BRK-001 (SRS 2.1.1, 2.2), LMS not called",
+   "request": {
+    "programCode": "RETAIL"
+   },
+   "backend": null,
+   "expect": {
+    "status": 400,
+    "json": {
+     "errorCode": "EAI-LMS-BRK-001"
+    }
+   }
+  },
+  {
+   "name": "programCode outside RETAIL/COBRAND -> 400 EAI-LMS-BRK-002 (SRS 2.1.1, 2.2), LMS not called",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "GOLD"
+   },
+   "backend": null,
+   "expect": {
+    "status": 400,
+    "json": {
+     "errorCode": "EAI-LMS-BRK-002"
+    }
+   }
+  },
+  {
+   "name": "payload wrapped in Data is not the API shape -> 400 EAI-LMS-BRK-001 (IBM-16)",
+   "request": {
+    "Data": {
+     "cifNumber": "C1",
+     "programCode": "RETAIL"
+    }
+   },
+   "backend": null,
+   "expect": {
+    "status": 400,
+    "json": {
+     "errorCode": "EAI-LMS-BRK-001"
+    }
+   }
+  },
+  {
+   "name": "success -> 200 with every output field mapped (SRS 2.1.1 OUTPUT)",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL",
+    "cardNumber": "4000111122223333"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 0
+   },
+   "expect": {
+    "status": 200,
+    "json": {
+     "cifNumber": "C1",
+     "memberId": "M-778",
+     "tierCode": "GOLD",
+     "pointsBalance": "12500",
+     "pointsPending": "300",
+     "pointsExpiryDate": "2027-03-31",
+     "status": "ACTIVE"
+    },
+    "sent": {
+     "CIF_Number": "C1",
+     "Program_Code": "RETAIL",
+     "Card_Number": "4000111122223333"
+    }
+   }
+  },
+  {
+   "name": "LMS returns Error_Code -> 400 EAI-LMS-BRK-004 with the LMS code in errorDesc (SRS 2.2)",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><Error_Code>LMS-404</Error_Code><Error_Desc>Member not found</Error_Desc></PointsInquiryRes>"
+   },
+   "expect": {
+    "status": 400,
+    "json": {
+     "errorCode": "EAI-LMS-BRK-004"
+    },
+    "desc_contains": "LMS-404"
+   }
+  },
+  {
+   "name": "LMS times out -> 500 EAI-LMS-BRK-003 (SRS 2.2, 2.3)",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 6
+   },
+   "expect": {
+    "status": 500,
+    "json": {
+     "errorCode": "EAI-LMS-BRK-003"
+    }
+   }
+  },
+  {
+   "name": "LMS answers HTTP 500 -> an error reply within the timeout, not a hang",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL"
+   },
+   "backend": {
+    "status": 500,
+    "body": "<Fault><Code>LMS-500</Code><Reason>Internal error</Reason></Fault>"
+   },
+   "expect": {
+    "status_in": [
+     400,
+     500,
+     502
+    ],
+    "json_has": [
+     "errorCode"
+    ]
+   }
+  },
+  {
+   "name": "URF-90001: partnerCode sent to LMS for COBRAND",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "COBRAND",
+    "partnerCode": "P77",
+    "includeExpiring": "Y"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 0
+   },
+   "expect": {
+    "status": 200,
+    "sent": {
+     "Partner_Code": "P77",
+     "Include_Expiring": "Y"
+    }
+   }
+  },
+  {
+   "name": "URF-90001: partnerCode not sent to LMS for RETAIL",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL",
+    "partnerCode": "P77"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 0
+   },
+   "expect": {
+    "status": 200,
+    "sent": {
+     "Partner_Code": null
+    }
+   }
+  },
+  {
+   "name": "URF-90001: includeExpiring absent -> N",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 0
+   },
+   "expect": {
+    "status": 200,
+    "sent": {
+     "Include_Expiring": "N"
+    }
+   }
+  },
+  {
+   "name": "URF-90001: includeExpiring empty -> N (empty counts as not present)",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL",
+    "includeExpiring": ""
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 0
+   },
+   "expect": {
+    "status": 200,
+    "sent": {
+     "Include_Expiring": "N"
+    }
+   }
+  },
+  {
+   "name": "URF-90001: pointsExpiringNext30Days returned when LMS sends it",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status><Points_Expiring_30D>450</Points_Expiring_30D></PointsInquiryRes>"
+   },
+   "expect": {
+    "status": 200,
+    "json": {
+     "pointsExpiringNext30Days": "450"
+    }
+   }
+  },
+  {
+   "name": "URF-90001: pointsExpiringNext30Days absent when LMS does not send it",
+   "request": {
+    "cifNumber": "C1",
+    "programCode": "RETAIL"
+   },
+   "backend": {
+    "status": 200,
+    "body": "<PointsInquiryRes><CIF_Number>C1</CIF_Number><Member_Id>M-778</Member_Id><Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending><Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status></PointsInquiryRes>",
+    "delay": 0
+   },
+   "expect": {
+    "status": 200,
+    "absent": [
+     "pointsExpiringNext30Days"
+    ]
+   }
+  }
+ ]
+}

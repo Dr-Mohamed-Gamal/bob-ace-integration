@@ -1,4 +1,4 @@
-# Prompt 5 — Fix the accepted findings
+# Prompt 4 — Fix the accepted findings
 
 Send after a person has read the review and decided. The finding numbers and reasons change with each review, so this prompt is written each time; keep its shape: what to fix, what is by design and why, then the checks and the document.
 

@@ -1,6 +1,6 @@
 # IBM Bob on App Connect Enterprise — Pilot Use Cases
 
-Four pilot use cases for a bank's integration team, run with **IBM Bob Shell** inside the **IBM App Connect Enterprise (ACE) Toolkit**: create a REST service on ACE and API Connect from a requirement document, write its Interface Definition Document, review it against the team's standards, and apply a change requirement. Seven prompts in one chat, steered by a standards rules file and IBM's ACE skills, and checked at every step by the ACE Toolkit's own validation.
+Four pilot use cases for a bank's integration team, run with **IBM Bob Shell** inside the **IBM App Connect Enterprise (ACE) Toolkit**: create a REST service on ACE and API Connect from a requirement document, write its Interface Definition Document, review it against the team's standards, and apply a change requirement. Six prompts in one chat, nothing asked of the developer, steered by a standards rules file and IBM's ACE skills, and checked at every step by the ACE Toolkit's own validation.
 
 > The bank's documents, code and the reports made from them are not published here. The runs used mock requirement documents prepared for the pilot. This repository describes the inputs and why each is used, the method, every prompt as sent, and what the runs showed.
 
@@ -10,10 +10,10 @@ Page: [index.html](index.html) (GitHub Pages).
 
 | # | Use case | What Bob does | Prompts | Clean rehearsal, 5 Oct 2026 |
 |---|---|---|---|---|
-| **1** | [Create a service](use-case-1-create-service/) | Plans the service, asks what the requirement leaves open, builds the API Connect API and product and the ACE REST API project, and runs the Toolkit check until it passes | Prompts 1 and 2 | Toolkit check passed first time; all fields and status codes; open values left as marked placeholders · 6.3 Bobcoins |
-| **3** | [Document it](use-case-3-interface-document/) | Writes the Interface Definition Document in the team's template from the code as built | Prompt 3 | All sections and fields; matches the code · 0.9 Bobcoins |
-| **6** | [Review it](use-case-6-review/) | Reviews in a fresh-context subagent against the requirement and the rules; a person accepts findings; Bob fixes them | Prompts 4 and 5 (review, then fix), and prompt 7 (review the change after use case 2) | 7 changes accepted and made, incl. 2 runtime fixes · 10.0 Bobcoins with fixes |
-| **2** | [Change it](use-case-2-change/) | Applies a change requirement: new fields with conditions and defaults, dated change comments, both API definitions, the document's version | Prompt 6 | All gates passed · 6.7 Bobcoins |
+| **1** | [Create a service](use-case-1-create-service/) | Plans the service, decides what the requirement leaves open from the rules, builds the API Connect API and product and the ACE REST API project, and runs both checks until they pass | Prompt 1 | Toolkit check passed first time; all fields and status codes; open values left as marked placeholders · 6.3 Bobcoins |
+| **3** | [Document it](use-case-3-interface-document/) | Writes the Interface Definition Document in the team's template from the code as built | Prompt 2 | All sections and fields; matches the code · 0.9 Bobcoins |
+| **6** | [Review it](use-case-6-review/) | Reviews in a fresh-context subagent against the requirement and the rules; a person accepts findings; Bob fixes them | Prompts 3 and 4 (review, then fix), and prompt 6 (review the change after use case 2) | 7 changes accepted and made, incl. 2 runtime fixes · 10.0 Bobcoins with fixes |
+| **2** | [Change it](use-case-2-change/) | Applies a change requirement: new fields with conditions and defaults, dated change comments, both API definitions, the document's version | Prompt 5 | All gates passed · 6.7 Bobcoins |
 
 The numbers follow the team's list of use cases. Use cases 4 (troubleshooting) and 5 (root-cause analysis) were parked for a later phase. Total for the rehearsal: 23.8 Bobcoins.
 
@@ -22,27 +22,29 @@ The numbers follow the team's list of use cases. Use cases 4 (troubleshooting) a
 | Part | What it does |
 |---|---|
 | **The bank's standards** in `.bob/rules/` ([RULES/client-standards.md](RULES/client-standards.md)) | 79 numbered rules: how to work, requirement conformance, ESQL, API Connect, the Interface Definition Document, and how to review. Every review finding cites a rule id |
-| **IBM's working method** in `.bob/rules/` ([RULES/ibm-working-method.md](RULES/ibm-working-method.md)) | 23 rules, IBM-01 to IBM-23: placeholders instead of invented values, the two checks, the decisions file, the Interface Definition Document, how a review is run, and the ACE run-time details each check confirmed (compute mode, user-defined properties, parser domain, error routing, content type, exception numbers). Kept apart from the bank's standards so the bank can see which is which |
+| **IBM's working method** in `.bob/rules/` ([RULES/ibm-working-method.md](RULES/ibm-working-method.md)) | 26 rules, IBM-01 to IBM-26: placeholders instead of invented values, the defaults for what the requirement leaves open and no questions to the developer (IBM-24, IBM-25, since 8 October), the two checks, the test cases Bob writes from the requirement (IBM-26, since 8 October), the decisions file, the Interface Definition Document, how a review is run, and the ACE run-time details each check confirmed (compute mode, user-defined properties, parser domain, error routing, content type, exception numbers). Kept apart from the bank's standards so the bank can see which is which |
 | **IBM's ACE skills** | The ACE Toolkit adds IBM's open-source `ace-flowpilot` skills to the workspace. They give Bob the exact project files, node types and ESQL patterns ACE expects |
 | **A Toolkit check** ([tools/toolkit_check.py](tools/toolkit_check.py)) | Runs the Toolkit's own build and validators headless (`mqsicreatebar -cleanBuild` on a copy) and prints the Toolkit's problem markers. It also fails when the BAR holds no compiled flow, so a project the Toolkit does not recognise cannot pass |
-| **A runtime check** ([tools/runtime_check.py](tools/runtime_check.py)) | Deploys the REST API to a local, throw-away integration server and calls it with the requirement's cases against a mock back end: validation errors, success mapping, back-end error, timeout, and the change's conditions and defaults. It sets the back-end URL as a deploy-time property, so it also proves the URL can be configured. Bob runs both checks before calling an ACE project done (rule IBM-04) |
+| **A runtime check** ([tools/runtime_check.py](tools/runtime_check.py)) | Deploys the REST API to a local, throw-away integration server and calls it with the requirement's cases against a mock back end: validation errors, success mapping, back-end error, timeout, and the change's conditions and defaults. It sets the back-end URL as a deploy-time property, so it also proves the URL can be configured. Bob runs both checks before calling an ACE project done (rule IBM-04). Since 8 October it also takes a cases file that Bob writes from the requirement (`--cases`, rule IBM-26, example in [tools/cases-example.json](tools/cases-example.json)), so the cases are no longer hard-coded for one service, and in that mode it fails when the integration server log shows an error during the run |
 | **The Interface Definition Document in Markdown** ([tools/md_to_docx.py](tools/md_to_docx.py)) | Bob writes the document in Markdown from the template's `.md` copy; the converter makes the Word file next to it (rule IBM-10) |
-| **A decisions file** | Bob records the lead's decisions in `docs/decisions.md` (rule IBM-09), so later steps and reviewers can see them |
+| **A decisions file** | Bob records its own decisions and the lead's in `docs/decisions.md` (rules IBM-09, IBM-25), so later steps and reviewers can see them |
+| **A Toolkit import handover** ([tools/toolkit_import.py](tools/toolkit_import.py)) | Hands a new project folder to the running Toolkit, which opens its import wizard with the folder filled in; the developer ticks the project and clicks Finish (rule IBM-04, since 8 October). The Toolkit has no silent import |
 | **Fresh-context reviews** | The review prompt asks for a subagent: a second Bob that never saw the build, reads the files as they are and reruns the checks |
 
 Bob Shell starts inside the Toolkit through a Local Terminal entry that runs [tools/bob-shell-toolkit.sh](tools/bob-shell-toolkit.sh). The script also sets the terminal size, which the Toolkit's terminal does not report to the programs it runs.
 
-## The Seven Prompts
+## The Six Prompts
 
 | # | Use case | Prompt |
 |---|---|---|
-| 1 | 1 · plan | Read `requirements/API-SRS-Project_MOCK_Loyalty_Rewards-V1.0.md`. Tell me how you will build LoyaltyPointsInquiryAPI: which layer each part goes in, the files you will create, and any question you have. Do not create anything yet. |
-| 2 | 1 · build | The decisions block in [use case 1](use-case-1-create-service/prompts/02-answer-and-build.md), ending "Go ahead and build it as planned." |
-| 3 | 3 · document | Write the Interface Definition Document for the service you just built, following IBM-10. Today is `<date>`. |
-| 4 | 6 · review | Review what you built against the standards, using a subagent with a fresh context. Do not change any file. |
-| 5 | 6 · fix | Fix findings `<accepted>`. `<others>` are by design: `<why>`. Record these decisions in `docs/decisions.md`. Then run both checks in IBM-04, and update the Interface Definition Document where the behaviour it describes has changed. |
-| 6 | 2 · change | Read `requirements/API_SRS-MOCK_Loyalty_Partner_Redemption_Changes_V1.0.md` and apply the change for LoyaltyPointsInquiryAPI. The requirement id is URF-90001, the author is `<name>` and the date is `<date>`. |
-| 7 | 6 · review the change | Review the URF-90001 change against the change SRS and the standards, using a subagent with a fresh context. Do not change any file. |
+| 1 | 1 · plan and build | Read `requirements/API-SRS-Project_MOCK_Loyalty_Rewards-V1.0.md`. Plan and build LoyaltyPointsInquiryAPI: first say which layer each part goes in, the files you will create and the decisions you took (IBM-24, IBM-25), then build it. Do not ask me anything: every value comes from the SRS, the rules and the workspace. Author: `<author>`. Today is `<date>`. Build only LoyaltyPointsInquiryAPI now and do not write the Interface Definition Document yet. Record the decisions in `docs/decisions.md`. Run both checks in IBM-04 until they pass. |
+| 2 | 3 · document | Write the Interface Definition Document for the service you just built, following IBM-10. Today is `<date>`. |
+| 3 | 6 · review | Review what you built against the standards, using a subagent with a fresh context. Do not change any file. |
+| 4 | 6 · fix | Fix findings `<accepted>`. `<others>` are by design: `<why>`. Record these decisions in `docs/decisions.md`. Then run both checks in IBM-04, and update the Interface Definition Document where the behaviour it describes has changed. |
+| 5 | 2 · change | Read `requirements/API_SRS-MOCK_Loyalty_Partner_Redemption_Changes_V1.0.md` and apply the change for LoyaltyPointsInquiryAPI. The requirement id is URF-90001, the author is `<name>` and the date is `<date>`. |
+| 6 | 6 · review the change | Review the URF-90001 change against the change SRS and the standards, using a subagent with a fresh context. Do not change any file. |
+
+Until 7 October the flow had seven prompts: a plan that ended with Bob's questions, and a decisions block from the lead that answered them. The block is now rule IBM-24 and rule IBM-25 tells Bob to decide and record instead of asking, so prompt 1 plans and builds in one go. The cost figures below from the 5 to 7 October runs refer to the seven-prompt flow.
 
 ## What the Runs Showed
 
@@ -62,6 +64,25 @@ After a colleague's review of this kit, the method was tightened and the whole f
 - **A project that builds is not yet a service that works.** Deploying earlier outputs on a local integration server showed issues that neither the build nor a review had shown: a compute mode value, the response parser domain, where errors are caught. The runtime check now runs these cases at every step, and Bob corrects what it reports.
 - **Bob fixes from the checks' output.** When the runtime check failed during a build, Bob read the failing case and corrected the code in the same step.
 - **A whole run takes about 45 minutes and 17–32 Bobcoins.**
+
+## Six Prompts, No Questions (8 October)
+
+The team asked for two things: that the developer supplies no answers, and that Bob tests the flows itself in an integration server with data taken from the requirement. The first changed the flow: prompt 2's decisions block became rule IBM-24, rule IBM-25 tells Bob to decide from the requirement, the rules and the workspace and to record each decision, and prompt 1 now plans and builds in one go. Prompts 2 to 6 are unchanged. The second is rule IBM-26 and the runtime check's cases-file mode.
+
+The six-prompt flow was run once, headless, in one chat, on a new workspace with the rules of this version:
+
+| Prompt | Result | Bobcoins |
+|---|---|---|
+| 1 plan and build | No questions. Nine decisions stated and recorded. Toolkit check passed, runtime check 7 of 7, audit passed, first pass | 4.5 |
+| 2 document | Markdown and Word, v1.0 | 1.7 |
+| 3 review | Three findings: the client-id header name in the API Connect file, the error code in the 502 examples, and a back-end status header read on the error path (by design). No file changed | 2.7 |
+| 4 fix | Two fixed, one recorded as a decision. Toolkit check passed | 3.6 |
+| 5 change | All three fields; Toolkit check passed, runtime check 13 of 13, audit passed, versions aligned | 6.9 |
+| 6 review the change | No findings. No file changed | 2.6 |
+
+23.4 Bobcoins in 50 minutes of Bob time. Rule IBM-26 was then tried in a fresh chat on the same workspace: Bob read both requirement documents, wrote 15 cases (two more than the hand-written set: a second missing mandatory field, and a value outside the allowed list for the new field) and passed 15 of 15 with a clean integration-server log on its first run, 0.9 Bobcoins. The first attempt at prompt 3 ended in a "Request Failed" error from Bob's service after the review subagent had finished; the same prompt sent again in the same chat completed. That retry is the only error of the run.
+
+Also on 8 October: the import handover ([tools/toolkit_import.py](tools/toolkit_import.py)) was confirmed on macOS, where handing a project folder to the running Toolkit opened "Import Projects from File System or Archive" with the folder filled in; the Windows launcher's `--launcher.openFile` relay is still to be tried on a bank laptop. The Toolkit has no silent import and no Bob plugin, and IBM's own ACE skill tells the developer to use File > Import.
 
 ## What Changed in the Rules (6 October)
 
@@ -104,4 +125,4 @@ The colleague's points about this kit were right on four counts, and those chang
 | [use-case-*/](use-case-1-create-service/) | One folder per use case: README and the prompts |
 | [RULES/client-standards.md](RULES/client-standards.md) | The bank's standards, with four corrections from the runs |
 | [RULES/ibm-working-method.md](RULES/ibm-working-method.md) | IBM's working method for Bob |
-| [tools/](tools/) | The Toolkit check, the runtime check, the Markdown-to-Word converter and the Bob Shell launcher for the Toolkit terminal |
+| [tools/](tools/) | The Toolkit check, the runtime check, the Toolkit import handover, the Markdown-to-Word converter and the Bob Shell launcher for the Toolkit terminal |

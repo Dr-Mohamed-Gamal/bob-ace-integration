@@ -1,4 +1,4 @@
-# Prompt 7 — Review the change
+# Prompt 6 — Review the change
 
 Send after the change. Bob changes no file.
 

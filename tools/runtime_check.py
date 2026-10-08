@@ -16,6 +16,25 @@ Steps:
 
 Exit 0 = every case passed, 1 = a case failed or the service did not start, 2 = ACE not found.
 --change adds the URF-90001 cases (partnerCode, includeExpiring, pointsExpiringNext30Days).
+--cases <file.json>  run the cases in that file instead of the built-in ones (the built-in ones are written for the
+             mock SRS of this pilot). Bob writes the file from the SRS (rule IBM-26). Format:
+               {"path": "/loyalty/v1/loyalty-points-inquiry",          optional; default: from openapi.json
+                "headers": {"ClientId": "c1", ...},                      optional; default: the six SRS headers
+                "url_property": "LMS_URL",                               optional; default LMS_URL
+                "reply_headers": ["X-TRACKING-ID"],                      optional; headers every reply must carry
+                "cases": [{"name": "missing mandatory field -> 400 EAI-LMS-BRK-001 (SRS 2.2)",
+                           "request": {"programCode": "RETAIL"},
+                           "backend": null,                              null = the back end must not be called
+                           "expect": {"status": 400, "json": {"errorCode": "EAI-LMS-BRK-001"}}},
+                          {"name": "success (SRS 2.1.1)",
+                           "request": {"cifNumber": "C1", "programCode": "RETAIL"},
+                           "backend": {"status": 200, "body": "<PointsInquiryRes>...</PointsInquiryRes>", "delay": 0},
+                           "expect": {"status": 200, "json": {"cifNumber": "C1", "tierCode": "GOLD"},
+                                      "sent": {"CIF_Number": "C1", "Partner_Code": null}}}]}
+             expect keys: status | status_in [..] | json {field: value} | json_has [..] | absent [..] |
+             desc_contains "text" | sent {back-end element: value, or null for "must not be sent"}.
+             A "delay" longer than the node timeout (3 s) makes a timeout case. In this mode the run also fails
+             when the integration server log shows an error message (BIPnnnnE) during the cases.
 --force-url  (diagnosis only) when LMS_URL is not a deploy-time property, rewrite the default URL in the
              copied ESQL so the remaining cases can still run. The IBM-14 failure is still reported.
 
@@ -48,6 +67,7 @@ WINDOWS = platform.system() == "Windows"
 # ---------------------------------------------------------------- mock LMS
 
 LMS_LOG = []
+CURRENT_BACKEND = {}       # --cases mode: the reply the mock gives for the case being run
 SUCCESS = ("<PointsInquiryRes><CIF_Number>{cif}</CIF_Number><Member_Id>M-778</Member_Id>"
            "<Tier_Code>GOLD</Tier_Code><Points_Balance>12500</Points_Balance><Points_Pending>300</Points_Pending>"
            "<Points_Expiry_Date>2027-03-31</Points_Expiry_Date><Status>ACTIVE</Status>{extra}</PointsInquiryRes>")
@@ -63,7 +83,12 @@ class MockLMS(BaseHTTPRequestHandler):
         m = re.search(r"<CIF_Number>([^<]*)</CIF_Number>", body)
         cif = m.group(1) if m else ""
         status, xml = 200, SUCCESS.format(cif=cif, extra="")
-        if cif == "OK2":
+        if CURRENT_BACKEND:
+            status = int(CURRENT_BACKEND.get("status", 200))
+            xml = CURRENT_BACKEND.get("body", "")
+            if CURRENT_BACKEND.get("delay"):
+                time.sleep(float(CURRENT_BACKEND["delay"]))
+        elif cif == "OK2":
             xml = SUCCESS.format(cif=cif, extra="<Points_Expiring_30D>450</Points_Expiring_30D>")
         elif cif == "LMSERR":
             xml = "<PointsInquiryRes><Error_Code>LMS-404</Error_Code><Error_Desc>Member not found</Error_Desc></PointsInquiryRes>"
@@ -211,11 +236,13 @@ def service_path(project):
         return SERVICE_PATH
 
 
+REQUEST_HEADERS = {"ClientId": "c1", "Authorization": "Bearer t", "X-USER-ID": "u1", "X-MSG-ID": "m1", "X-ORG-ID": "AE"}
+REPLY_HEADERS = ["X-TRACKING-ID"]
+
+
 def call(port, body):
     req = urllib.request.Request(f"http://127.0.0.1:{port}{SERVICE_PATH}", data=json.dumps(body).encode(),
-                                 headers={"Content-Type": "application/json", "ClientId": "c1",
-                                          "Authorization": "Bearer t", "X-USER-ID": "u1", "X-MSG-ID": "m1",
-                                          "X-ORG-ID": "AE"}, method="POST")
+                                 headers=dict({"Content-Type": "application/json"}, **REQUEST_HEADERS), method="POST")
     try:
         r = urllib.request.urlopen(req, timeout=TIMEOUT_SECONDS + 30)
         return r.status, dict(r.headers), r.read().decode("utf-8", "replace")
@@ -225,7 +252,34 @@ def call(port, body):
         return None, {}, repr(e)
 
 
+def load_cases(path):
+    """Read a --cases file; returns the list of (name, request, expect) and sets the globals it names."""
+    global SERVICE_PATH, URL_PROPERTY, REQUEST_HEADERS, REPLY_HEADERS
+    spec = json.load(open(path, encoding="utf-8"))
+    if spec.get("path"):
+        SERVICE_PATH = spec["path"]
+    if spec.get("url_property"):
+        URL_PROPERTY = spec["url_property"]
+    if spec.get("headers"):
+        REQUEST_HEADERS = dict(spec["headers"])
+    if "reply_headers" in spec:
+        REPLY_HEADERS = list(spec["reply_headers"])
+    cases = []
+    for i, c in enumerate(spec["cases"], 1):
+        exp = dict(c.get("expect", {}))
+        if "sent" in exp:
+            exp["lms"] = exp.pop("sent")
+        backend = c.get("backend")
+        if backend is None:
+            exp["lms_called"] = False
+        exp["_backend"] = backend or {}
+        cases.append((c.get("name", f"case {i}"), c.get("request", {}), exp))
+    return cases, bool(spec.get("path"))
+
+
 def check(port, name, body, exp):
+    global CURRENT_BACKEND
+    CURRENT_BACKEND = exp.get("_backend", {})
     before = len(LMS_LOG)
     t = time.time()
     status, headers, text = call(port, body)
@@ -270,7 +324,7 @@ def check(port, name, body, exp):
                     problems.append(f"LMS got {el}={got!r}, expected {v!r}")
     if status is not None:
         ctype = next((v for k, v in headers.items() if k.lower() == "content-type"), "")
-        REPLIES.append((name, ctype, any(k.lower() == "x-tracking-id" for k in headers)))
+        REPLIES.append((name, ctype, all(any(k.lower() == h.lower() for k in headers) for h in REPLY_HEADERS)))
     mark = "PASS" if not problems else "FAIL"
     print(f"  {mark}  {name}  [{took:.1f}s]")
     for p in problems:
@@ -283,10 +337,17 @@ def check(port, name, body, exp):
 # ---------------------------------------------------------------- main
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    argv = sys.argv[1:]
+    cases_file = None
+    if "--cases" in argv:
+        i = argv.index("--cases")
+        cases_file = argv[i + 1]
+        del argv[i:i + 2]
+    args = [a for a in argv if not a.startswith("--")]
     if len(args) != 1:
         sys.exit(__doc__)
     project = os.path.abspath(args[0])
+    file_cases, fixed_path = (load_cases(cases_file) if cases_file else (None, False))
     name = os.path.basename(project.rstrip("/\\"))
     home = ace_home()
     if not home:
@@ -366,15 +427,29 @@ def main():
                 print("  " + e[:300])
             return 1
         global SERVICE_PATH
-        SERVICE_PATH = service_path(os.path.join(ws, name))
+        if not fixed_path:
+            SERVICE_PATH = service_path(os.path.join(ws, name))
         print(f"Deployed {name} on a local integration server at {SERVICE_PATH}; mock LMS at {lms_url}")
-        cases = CASES + (CHANGE_CASES if "--change" in sys.argv else [])
+        if file_cases is not None:
+            cases = file_cases
+            print(f"Cases from {cases_file}: {len(cases)}")
+        else:
+            cases = CASES + (CHANGE_CASES if "--change" in sys.argv else [])
+        log_mark = len(open(server_log, encoding="utf-8", errors="replace").read())
         results = [check(port, n, b, e) for n, b, e in cases]
         passed = sum(results)
+        if file_cases is not None:
+            tail = open(server_log, encoding="utf-8", errors="replace").read()[log_mark:]
+            log_errors = [l.strip() for l in tail.splitlines() if re.search(r"BIP\d+E:", l)]
+            print(f"  {'PASS' if not log_errors else 'FAIL'}  integration server log shows no error message during the cases")
+            if log_errors:
+                failures.append("integration server log errors")
+                for l in log_errors[:5]:
+                    print("        - " + l[:200])
         bad_type = [(n, t) for n, t, _ in REPLIES if "application/json" not in t]
         no_track = [n for n, _, h in REPLIES if not h]
         for label, bad in (("every reply has Content-Type application/json", bad_type),
-                           ("every reply has an X-TRACKING-ID header (SRS header 6)", no_track)):
+                           (f"every reply has the {', '.join(REPLY_HEADERS)} header(s)", no_track)):
             print(f"  {'PASS' if not bad else 'FAIL'}  {label}")
             if bad:
                 failures.append(label)

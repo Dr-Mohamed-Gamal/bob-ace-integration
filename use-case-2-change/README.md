@@ -12,7 +12,7 @@ A change requirement (id URF-90001) for two existing APIs. For the inquiry API: 
 
 | # | Prompt | What Bob does |
 |---|---|---|
-| 6 | [Apply the change](prompts/06-change.md) | Maps the three new fields with their conditions and default, adds a change comment with the requirement id, author and date at each change, updates both API definitions and the document (fields, processing logic, version history), runs the Toolkit check, and leaves the redemption API alone |
+| 5 | [Apply the change](prompts/05-change.md) | Maps the three new fields with their conditions and default, adds a change comment with the requirement id, author and date at each change, updates both API definitions and the document (fields, processing logic, version history), runs the Toolkit check, and leaves the redemption API alone |
 
 ## What the Rehearsal Showed
 

@@ -3,7 +3,7 @@
 These are IBM's instructions to Bob, not the client's standards. They say how Bob works here: what to do
 when a value is unknown, how to check an ACE project, where decisions are kept and how a review is
 run. Each one answers a mistake Bob made in the pilot dry runs of 5 and 6 October 2026. The client's
-standards are in [`client-standards.md`](client-standards.md); when the two disagree, ask.
+standards are in [`client-standards.md`](client-standards.md); when the two disagree, follow the client's standards and record it in `docs/decisions.md`.
 
 ## Values and fields
 
@@ -16,14 +16,45 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
   are not invented values: for example the API Connect gateway type `datapower-api-gateway`.
   *(Dry run: Bob put three invented hosts on the client's real domain into the code.)*
 - **IBM-02** Read and write only the fields and headers the SRS names, on the channel side and on
-  the back-end side (FW-01). If the design seems to need another one, ask.
+  the back-end side (FW-01). If the design seems to need another one, do not add it; record the gap in `docs/decisions.md`.
   *(Dry run: Bob read a back-end field the SRS never mentions.)*
 - **IBM-03** Take dates from the prompt. If the prompt gives none, run `date`. Never copy a date
   from the SRS into a change comment or a document.
   *(Dry run: every change comment carried the SRS date.)*
 
+- **IBM-24** Defaults for this workspace, applied when the SRS and the workspace give nothing better.
+  Each one was agreed with the lead in the trial runs of 6 and 7 October 2026:
+  - Framework: there is no framework in this workspace. Handle errors inline in the ESQL, write no new
+    libraries, mark each plug-in point with `TODO framework`, and leave out CATALOG on THROW USER EXCEPTION.
+  - Nearest service: follow `skills/shared/ExampleAPI` in the ace-flowpilot skill (same project files,
+    natures and structure). No broker schema: files in the project root, like ExampleAPI.
+  - Back-end URL: one user-defined property per back end named `<BACKEND>_URL` (for LMS: `LMS_URL`), default
+    `http://<backend>.todo.invalid/<ServiceOperation>`, for LMS `http://lms.todo.invalid/PointsInquiry`
+    (IBM-01, IBM-14). Plain HTTP, no TLS profile.
+  - Paths: base path `/<domain>/v1` from the SRS project name (Loyalty: `/loyalty/v1`) in both the ACE REST API
+    and API Connect; the operation path is the SRS "API Path".
+  - API Connect: files in `apic/`. The invoke calls ACE (not the back end) through the catalog property
+    `omw-<domain>-url` (Loyalty: `omw-loyalty-url`). One product per SRS project, named after it
+    (`LoyaltyRewards`), containing only the APIs built so far. Pipeline values and org, gateway and catalog
+    names as `TODO_` placeholders.
+  - A new service has no change comments. Author and date come from the prompt (IBM-03).
+  - Headers: send no extra headers or credentials to the back end unless the SRS names them. Generate
+    `X-TRACKING-ID` as a UUID in OMW and return it as a response header (SRS header 6, populated by Middleware).
+  - Validation: reject a missing mandatory field with the SRS "Mandatory field missing" code and a value outside
+    the SRS allowed values with the "Invalid field value" code, both HTTP 400, without calling the back end
+    (for this SRS: EAI-LMS-BRK-001 and EAI-LMS-BRK-002). An optional field sent as an empty string counts as
+    not present.
+  - Subflow layout: one Compute node per step (request mapping, response mapping, error handling), each with
+    its own ESQL module (ESQL-01), and an HTTP Request node that calls the back end.
+- **IBM-25** Do not ask the developer questions and do not stop to wait for answers. Decide every open point
+  from the SRS, these rules, the client's standards and the workspace, in that order; where none of them has
+  the value, apply IBM-24 or a placeholder (IBM-01). Write each decision in `docs/decisions.md` (IBM-09) with
+  the date and its source, then continue. State the decisions at the top of your reply.
+  *(Trial runs 6 and 7 October: the five questions Bob asked were all answerable from the SRS and these rules.
+  Trial run 8 October with this rule: no questions, both checks passed, 4.5 Bobcoins for plan and build.)*
+
 - **IBM-22** When asked for a plan, keep it short: the layer for each part, one line per file you will
-  create, and your questions. No code, no file contents. Read only what the plan needs: the SRS, the
+  create, and the decisions you took under IBM-24 and IBM-25. No code, no file contents. Read only what the plan needs: the SRS, the
   rules and the skill's `ExampleAPI`.
   *(Toolkit run 6 Oct: Bob read the whole workspace for the plan and ran out of response length.)*
 
@@ -43,7 +74,12 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
   When the Toolkit check passes, run `python3 ../tools/runtime_check.py <project folder>` (add `--change`
   after a change requirement). It deploys the project to a local integration server and calls it with
   the SRS cases against a mock LMS, about a minute. Fix every failure it reports and run both checks
-  again. The project is done only when both pass.
+  again. The runtime check runs twice: with its built-in cases when the project is the pilot's
+  LoyaltyPointsInquiryAPI, and always with the cases file you wrote from the SRS (IBM-26). The project
+  is done only when every check passes.
+  When both pass, run `python3 ../tools/toolkit_import.py <project folder>` once for a new project: it hands
+  the folder to the running Toolkit, which opens its import wizard with the folder filled in; the developer
+  ticks the project and clicks Finish. Say so in your summary.
   *(Dry run: Bob's first ACE project compiled but would not open in the Toolkit. Runtime test 6 Oct:
   a project that passed the Toolkit check did not deploy, and another passed 1 of 13 SRS cases.)*
 - **IBM-05** Each ACE project has `.settings/org.eclipse.core.resources.prefs` with exactly
@@ -58,6 +94,19 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
   framework, leave out `CATALOG` so ACE uses its default; never invent or placeholder a catalog name.
 
 ## Run-time behaviour (the runtime check tests these)
+
+- **IBM-26** Before the runtime check, write the service's test cases from the SRS into
+  `tests/<project>.cases.json`, in the format described at the top of `tools/runtime_check.py` (`--cases`;
+  `tools/cases-example.json` is a complete example). Cover: the success path with every output field and
+  every input field sent to the back end; one case per error code in the SRS error list that the service
+  can produce; one per mandatory field missing; one per field with allowed values, sent with a value
+  outside them; the back-end timeout (a `delay` longer than 3 seconds) and a back-end HTTP error; and,
+  after a change requirement, one case per condition and default it adds (a field sent and not sent to the
+  back end, a default applied when the field is absent and when it is empty, an output field present and
+  absent). Take every value from the SRS tables and invent none; do not ask (IBM-25). Then run
+  `python3 ../tools/runtime_check.py <project folder> --cases tests/<project>.cases.json` and fix the
+  service, or the case where it misread the SRS, until every case passes and the integration server log
+  shows no error message. Keep the file: the change step extends it.
 
 - **IBM-13** A Compute node whose ESQL writes `OutputLocalEnvironment` (for example
   `Destination.HTTP.RequestURL`, `Destination.HTTP.ReplyStatusCode` or variables) has
@@ -151,7 +200,7 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
 
 ## Decisions
 
-- **IBM-09** Record every decision the lead gives you (answers to your questions, chosen names,
+- **IBM-09** Record every decision the lead gives you or that you take under IBM-25 (answers, chosen names,
   "no framework", placeholders accepted, findings left by design) in `docs/decisions.md`, one line
   each with the date. Later steps and reviewers read it.
   *(Dry run: a fresh reviewer reported the lead's decisions as defects.)*
