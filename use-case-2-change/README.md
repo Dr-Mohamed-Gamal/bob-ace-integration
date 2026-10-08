@@ -2,7 +2,7 @@
 
 One prompt that applies a change requirement to the existing service.
 
-> Pilot use case for a bank's integration team. The change requirement is a mock in the team's layout and is not published here.
+> Pilot use case for a bank's integration team. The change requirement is a mock in the team's layout, with invented content: [documents/requirements/](../documents/requirements/).
 
 ## The Input
 
