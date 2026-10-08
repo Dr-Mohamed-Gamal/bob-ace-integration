@@ -8,8 +8,8 @@ Default folder: bob-workspace in the repository root (the rules and prompts refe
     .bob/rules/client-standards.md     copied from RULES/
     .bob/rules/ibm-working-method.md   copied from RULES/
     .bobignore                         hides the Toolkit's second skill copy and its metadata from Bob
-    requirements/                      put the two requirement documents here (not in this repository)
-    templates/                         put the Interface Definition Document template here (.md and .docx)
+    requirements/                      the two requirement documents (copied from documents/requirements/ if present)
+    templates/                         the Interface Definition Document template (copied from documents/templates/ if present)
     tests/  docs/                      Bob writes the cases file and the documents here
 
 Then open the ACE Toolkit on this folder: it installs IBM's ace-flowpilot skill into .bob/skills/ itself.
@@ -40,6 +40,14 @@ def main():
                                 ".github/\n.metadata/\n")
     for folder in ("requirements", "templates", "tests", "docs"):
         os.makedirs(os.path.join(ws, folder), exist_ok=True)
+    # documents published next to the kit (documents/requirements, documents/templates) are copied in
+    for folder in ("requirements", "templates"):
+        src = os.path.join(ROOT, "documents", folder)
+        if os.path.isdir(src):
+            for n in sorted(os.listdir(src)):
+                if not n.startswith("."):
+                    shutil.copy(os.path.join(src, n), os.path.join(ws, folder, n))
+            print(f"  {folder}/           copied from documents/{folder}/")
     print(f"Workspace: {ws}")
     print("  .bob/rules/        two rules files copied from RULES/")
     print("  .bobignore         " + ("written" if ignore_new else "kept"))
