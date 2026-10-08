@@ -76,7 +76,7 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
   <p class="meta">Pilot use cases for a bank's integration team · dry runs and a clean rehearsal on 5 October 2026 · ACE 13.0.9, Bob Shell 2.0.5</p>
 </header>
 
-<div class="note">The bank's documents, code and the reports made from them are not published here. The runs used mock requirement documents prepared for the pilot. This page describes the inputs and why each is used, the method, every prompt as sent, and what the runs showed.</div>
+<div class="note">The bank's documents, code and the reports made from them are not published here. The runs used mock requirement documents and a mock template prepared by IBM for the pilot, in the team's layout with invented content; they are in the repository's <code>documents/</code> folder. This page describes the inputs and why each is used, the method, every prompt as sent, and what the runs showed.</div>
 
 <h2 id="use-cases">The use cases</h2>
 <p>The bank's integration team builds and changes REST services in two layers: an API on API Connect that channels call, and an ACE service behind it that maps JSON to the back end's XML and calls the back end. The team listed six use cases for IBM Bob. Four form the pilot and run here in the order the team agreed:</p>
@@ -252,8 +252,8 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
 
 <h2 id="running">Running it</h2>
 <ol class="flow">
-  <li>Install ACE 13 with its Toolkit, IBM Bob Shell and Python 3. Get from the pilot lead the four files this repository does not publish: the two requirement documents and the Interface Definition Document template (Markdown and Word).</li>
-  <li>Clone the repository and run <code>python3 tools/new_workspace.py</code>: it creates <code>bob-workspace/</code> with the rules, the <code>.bobignore</code> file and the folders, and lists the files still to add. If the repository has a <code>documents/</code> folder the script copies the documents in; otherwise put them in <code>requirements/</code> and <code>templates/</code>. The workspace is git-ignored.</li>
+  <li>Install ACE 13 with its Toolkit, IBM Bob Shell and Python 3. The two mock requirement documents and the Interface Definition Document template are in the repository's <code>documents/</code> folder.</li>
+  <li>Clone the repository and run <code>python3 tools/new_workspace.py</code>: it creates <code>bob-workspace/</code> with the rules, the <code>.bobignore</code> file and the folders, and lists the files still to add. The script copies the documents from <code>documents/</code> into the workspace. The workspace is git-ignored.</li>
   <li>Open the ACE Toolkit on <code>bob-workspace</code>; it installs IBM's ace-flowpilot skill itself. Settings &gt; Terminal &gt; Local Terminal &gt; add an "IBM Bob Shell" entry that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a> with the workspace as the working directory.</li>
   <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the six prompts in one chat, each pasted as one line with the author and date filled in. Prompt 4 is written from the review's findings.</li>
   <li>Approve the checks when Bob asks. After each step, run <code>python3 ../tools/toolkit_import.py</code> on the project once, or File &gt; Import, and read the Problems view.</li>

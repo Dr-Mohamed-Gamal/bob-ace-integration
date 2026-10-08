@@ -2,7 +2,7 @@
 
 One prompt that takes a requirement document for a new REST service to a built API Connect API and product and an ACE REST API project, with IBM Bob Shell inside the ACE Toolkit.
 
-> Pilot use case for a bank's integration team. The runs used a mock requirement document in the team's layout; it is not published here.
+> Pilot use case for a bank's integration team. The runs used a mock requirement document in the team's layout, with invented content: [documents/requirements/](../documents/requirements/).
 
 ## The Input
 

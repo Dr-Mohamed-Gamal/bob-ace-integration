@@ -2,7 +2,7 @@
 
 Four pilot use cases for a bank's integration team, run with **IBM Bob Shell** inside the **IBM App Connect Enterprise (ACE) Toolkit**: create a REST service on ACE and API Connect from a requirement document, write its Interface Definition Document, review it against the team's standards, and apply a change requirement. Six prompts in one chat, nothing asked of the developer, steered by a standards rules file and IBM's ACE skills, and checked at every step by the ACE Toolkit's own validation.
 
-> The bank's documents, code and the reports made from them are not published here. The runs used mock requirement documents prepared for the pilot. This repository describes the inputs and why each is used, the method, every prompt as sent, and what the runs showed.
+> The bank's documents, code and the reports made from them are not published here. The runs used mock requirement documents and a mock document template prepared by IBM for the pilot, in the team's layout with invented content; they are in [documents/](documents/). This repository describes the inputs and why each is used, the method, every prompt as sent, and what the runs showed.
 
 Page: [index.html](index.html) (GitHub Pages).
 
@@ -119,10 +119,10 @@ The colleague's points about this kit were right on four counts, and those chang
 
 ## Running It Yourself
 
-What you need: IBM App Connect Enterprise 13 with its Toolkit (13.0.9 was used), IBM Bob Shell 2.0.x, Python 3 with `python-docx` (for the Word document), and from the pilot lead the four files that are not in this repository: the two requirement documents (`requirements/`) and the Interface Definition Document template in Markdown and Word (`templates/`).
+What you need: IBM App Connect Enterprise 13 with its Toolkit (13.0.9 was used), IBM Bob Shell 2.0.x, Python 3 with `python-docx` (for the Word document), The two mock requirement documents and the Interface Definition Document template are in [documents/](documents/).
 
 1. Clone this repository and run `python3 tools/new_workspace.py`. It creates `bob-workspace/` next to `tools/` with the two rules files in `.bob/rules/`, the `.bobignore` file and the empty folders, and lists the files still to add.
-2. If the repository has a `documents/` folder, the script has already copied the requirement documents and the template into the workspace. Otherwise copy them into `bob-workspace/requirements/` and `bob-workspace/templates/`, with the file names the script prints. `bob-workspace/` is in `.gitignore`: it never leaves your machine.
+2. The script has copied the requirement documents and the template from `documents/` into the workspace. `bob-workspace/` is in `.gitignore`, so what Bob builds there never leaves your machine.
 3. Open the ACE Toolkit on `bob-workspace` as the workspace. It installs IBM's ace-flowpilot skill into `.bob/skills/` itself.
 4. In the Toolkit, Settings > Terminal > Local Terminal, add an entry "IBM Bob Shell" that runs `tools/bob-shell-toolkit.sh` with the workspace as the working directory. The script reads the API key from `~/.bob/bob_api_key` and sets the terminal size the Toolkit does not report. On Windows, start Bob Shell in a terminal next to the Toolkit instead.
 5. Window > Show View > Terminal, open an "IBM Bob Shell" terminal, Agent mode, one chat, and send the six prompts in order from the use-case folders, each pasted as one line with `<author>` and `<date>` filled in. Prompt 4 is written from the review's findings in the shape the use-case-6 folder shows.
@@ -136,6 +136,7 @@ What to expect, from the 8 October run: no question from Bob, both checks green 
 |---|---|
 | [index.html](index.html) | The page |
 | [use-case-*/](use-case-1-create-service/) | One folder per use case: README and the prompts |
+| [documents/](documents/) | The mock requirement documents (new service, change) and the Interface Definition Document template, Markdown and Word |
 | [RULES/client-standards.md](RULES/client-standards.md) | The bank's standards, with four corrections from the runs |
 | [RULES/ibm-working-method.md](RULES/ibm-working-method.md) | IBM's working method for Bob |
 | [tools/](tools/) | The workspace setup script, the Toolkit check, the runtime check with its example cases file, the Toolkit import handover, the Markdown-to-Word converter and the Bob Shell launcher for the Toolkit terminal |

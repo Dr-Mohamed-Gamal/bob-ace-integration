@@ -2,7 +2,7 @@
 
 One prompt that writes the service's Interface Definition Document (IDD) in the team's template, from the code as built.
 
-> Pilot use case for a bank's integration team. The template and the documents made from it are not published here.
+> Pilot use case for a bank's integration team. The template is in [documents/templates/](../documents/templates/); the documents made from it are not published here.
 
 ## The Input
 
