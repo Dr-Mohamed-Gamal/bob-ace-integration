@@ -252,12 +252,12 @@ footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px;
 
 <h2 id="running">Running it</h2>
 <ol class="flow">
-  <li>Install IBM Bob Shell and ACE 13. Open the ACE Toolkit on the Bob workspace.</li>
-  <li>In the Toolkit: Settings &gt; Terminal &gt; Local Terminal &gt; Add an entry "IBM Bob Shell" that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a>, with the Eclipse workspace as the initial working directory. The script adds Homebrew to the path, reads the API key file and sets the terminal size, which the Toolkit's terminal does not report.</li>
-  <li>Add a <code>.bobignore</code> file to the workspace with the two lines <code>.github/</code> and <code>.metadata/</code>, so Bob does not read the Toolkit's second copy of the skills or its metadata.</li>
-  <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the six prompts in one chat. Paste each prompt as one line: Enter sends the message.</li>
-  <li>Approve read-only checks for the task when Bob asks; approve deletions once, after reading them.</li>
-  <li>After each step, refresh the project in the Toolkit and look at the Problems view; use Project &gt; Clean if a marker looks out of date.</li>
+  <li>Install ACE 13 with its Toolkit, IBM Bob Shell and Python 3. Get from the pilot lead the four files this repository does not publish: the two requirement documents and the Interface Definition Document template (Markdown and Word).</li>
+  <li>Clone the repository and run <code>python3 tools/new_workspace.py</code>: it creates <code>bob-workspace/</code> with the rules, the <code>.bobignore</code> file and the folders, and lists the files still to add. Put the documents in <code>requirements/</code> and <code>templates/</code>. The workspace is git-ignored.</li>
+  <li>Open the ACE Toolkit on <code>bob-workspace</code>; it installs IBM's ace-flowpilot skill itself. Settings &gt; Terminal &gt; Local Terminal &gt; add an "IBM Bob Shell" entry that runs <a href="tools/bob-shell-toolkit.sh">tools/bob-shell-toolkit.sh</a> with the workspace as the working directory.</li>
+  <li>Window &gt; Show View &gt; Terminal, open an "IBM Bob Shell" terminal, and send the six prompts in one chat, each pasted as one line with the author and date filled in. Prompt 4 is written from the review's findings.</li>
+  <li>Approve the checks when Bob asks. After each step, run <code>python3 ../tools/toolkit_import.py</code> on the project once, or File &gt; Import, and read the Problems view.</li>
+  <li>Expect, from the 8 October run: no question, both checks green after prompts 1 and 5, three findings in the first review and none in the second, about 25 Bobcoins. The cases file (IBM-26) was tested in its own chat; its place inside prompts 1 and 5 has not yet run as one flow, so the first full run is also that test.</li>
 </ol>
 <p>Each use case also has its own page in this repository: <a href="use-case-1-create-service/">use case 1</a>, <a href="use-case-3-interface-document/">use case 3</a>, <a href="use-case-6-review/">use case 6</a>, <a href="use-case-2-change/">use case 2</a>.</p>
 

@@ -117,6 +117,19 @@ The colleague's kit was run the same way: its sample output deployed on a local 
 
 The colleague's points about this kit were right on four counts, and those changes are listed under "What Changed on 7 October": the empty-BAR guard, the Markdown route for the document, IBM-13 to IBM-17, and review checks 6–9.
 
+## Running It Yourself
+
+What you need: IBM App Connect Enterprise 13 with its Toolkit (13.0.9 was used), IBM Bob Shell 2.0.x, Python 3 with `python-docx` (for the Word document), and from the pilot lead the four files that are not in this repository: the two requirement documents (`requirements/`) and the Interface Definition Document template in Markdown and Word (`templates/`).
+
+1. Clone this repository and run `python3 tools/new_workspace.py`. It creates `bob-workspace/` next to `tools/` with the two rules files in `.bob/rules/`, the `.bobignore` file and the empty folders, and lists the files still to add.
+2. Copy the requirement documents into `bob-workspace/requirements/` and the template into `bob-workspace/templates/`, with the file names the script prints. `bob-workspace/` is in `.gitignore`: it never leaves your machine.
+3. Open the ACE Toolkit on `bob-workspace` as the workspace. It installs IBM's ace-flowpilot skill into `.bob/skills/` itself.
+4. In the Toolkit, Settings > Terminal > Local Terminal, add an entry "IBM Bob Shell" that runs `tools/bob-shell-toolkit.sh` with the workspace as the working directory. The script reads the API key from `~/.bob/bob_api_key` and sets the terminal size the Toolkit does not report. On Windows, start Bob Shell in a terminal next to the Toolkit instead.
+5. Window > Show View > Terminal, open an "IBM Bob Shell" terminal, Agent mode, one chat, and send the six prompts in order from the use-case folders, each pasted as one line with `<author>` and `<date>` filled in. Prompt 4 is written from the review's findings in the shape the use-case-6 folder shows.
+6. Approve the checks when Bob asks (`arch -arm64 /usr/bin/python3 ../tools/…` on Apple silicon). After each step, run `python3 ../tools/toolkit_import.py bob-workspace/<project>` once, or File > Import, and read the Problems view.
+
+What to expect, from the 8 October run: no question from Bob, both checks green after prompt 1 (7 cases) and after prompt 5 (13 cases, or 15 with the cases file), three findings in the first review and none in the second, about 25 Bobcoins for the six prompts. Rule IBM-26 (the cases file) was tested in its own chat on 8 October; its place inside prompts 1 and 5 has not yet been run as one flow, so the first full run of this version is also that test: if Bob skips the cases file, send "Write the test cases from the SRS following IBM-26 and run the runtime check with them" as an extra message.
+
 ## Repository
 
 | Path | What it is |
@@ -125,4 +138,5 @@ The colleague's points about this kit were right on four counts, and those chang
 | [use-case-*/](use-case-1-create-service/) | One folder per use case: README and the prompts |
 | [RULES/client-standards.md](RULES/client-standards.md) | The bank's standards, with four corrections from the runs |
 | [RULES/ibm-working-method.md](RULES/ibm-working-method.md) | IBM's working method for Bob |
-| [tools/](tools/) | The Toolkit check, the runtime check, the Toolkit import handover, the Markdown-to-Word converter and the Bob Shell launcher for the Toolkit terminal |
+| [tools/](tools/) | The workspace setup script, the Toolkit check, the runtime check with its example cases file, the Toolkit import handover, the Markdown-to-Word converter and the Bob Shell launcher for the Toolkit terminal |
+| `bob-workspace/` | Your workspace, created by the setup script; holds the unpublished documents; ignored by git |

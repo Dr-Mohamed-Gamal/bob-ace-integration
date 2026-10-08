@@ -96,8 +96,8 @@ standards are in [`client-standards.md`](client-standards.md); when the two disa
 ## Run-time behaviour (the runtime check tests these)
 
 - **IBM-26** Before the runtime check, write the service's test cases from the SRS into
-  `tests/<project>.cases.json`, in the format described at the top of `tools/runtime_check.py` (`--cases`;
-  `tools/cases-example.json` is a complete example). Cover: the success path with every output field and
+  `tests/<project>.cases.json`, in the format described at the top of `../tools/runtime_check.py` (`--cases`;
+  `../tools/cases-example.json` is a complete example). Cover: the success path with every output field and
   every input field sent to the back end; one case per error code in the SRS error list that the service
   can produce; one per mandatory field missing; one per field with allowed values, sent with a value
   outside them; the back-end timeout (a `delay` longer than 3 seconds) and a back-end HTTP error; and,
